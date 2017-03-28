@@ -1,0 +1,49 @@
+﻿552 Project Proposal: HaXtal
+
+
+Overall Goal of Project:
+
+
+Construct a framework that enables the user to draw a shape (a simple Paint program). Once 
+the user draws this shape, the program will test the shape against a series of randomly generated fractals and output a similar fractal based on this shape. We find fractals really cool, and think other people might too. We also feel that fractals and their recursive structure really embody the Haskellian ideals. So, with this program we’ll be able to explore some new aspects of Haskell (such as GUI libraries) while incorporating others learned in class (such as QuickCheck, Gen, etc.), and end with a product people could use to draw fractals for fun and maybe save them as an image for their every day fractal needs.
+
+
+Typical Use Case: 
+
+
+This can be used for two types of users: 
+
+
+1. The first use case is for Haskell programmers who want to utilize Fractal generation in their project. They can interface directly with our library to generate Fractal PNG’s. 
+
+
+1. For the non-programmer, they can enjoy our application from the GUI by drawing any shape of their choosing and receiving a beautiful fractal based off of that shape. The fractal images are not only fun to create and look at for users, but can also help people learn about fractals who are looking to be able to better visualize a large variety of types of fractals.
+
+
+Components:
+* Main.hs
+   * This file would contain very little, other than important Fractal.hs and containing some example of Fractals that you can create with Fractal.hs
+* Paint.hs
+   * Paint.hs would be the GUI component of our application. This file would display a GUI to the user, receive the shape back, and pass it to Compare.hs to get the generated fractal.
+* Fractal.hs
+   * This file would be the full fractal library. It will be imported into Paint.hs and Main.hs for use in defining Fractals using the L-system and for generating arbitrary Fractals using QuickCheck in Paint.hs
+* Compare.hs
+   * This file will contain the code for comparing the image that the user draws to a large number of randomly generated fractals. It returns the fractal that is most similar to the user’s drawing.
+
+
+Effort budget:
+* Building the fractal framework that utilizes L-systems (25 hours)
+
+
+* Generating arbitraries based on our fractal framework (>= 15 hours)
+
+
+* Taking a fractal from our framework and generating a png (20 hours)
+*  (Stretch: image pops up in a window)
+
+
+* Getting the GUI working ( >= 15 hours)
+   * Gui for a user to draw a simple design (maybe with only one stroke, i.e. no lifting of the pen), click a button, and then output a fractal that closely matches the inputted design
+
+
+* Testing, refactoring, documentation (<= 10 hours)
