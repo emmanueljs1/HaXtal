@@ -2,37 +2,38 @@ module LSystem where
 
 import Test.QuickCheck
 
-data Operator = Operator {name :: Char, op :: Op} deriving Eq
+data RecOp = NOP
+           | Replicate Int
+           | Custom [Variable]
 
-instance Show Operator where
-  show (Operator n _)= [n]
+data DrawOp = Forward
+            | Backward
+            | Turn Float
+            deriving (Show, Eq)
 
-data Op = Forward
-        | Backward
-        | Turn Float
-        deriving (Show, Eq)
+data Variable = Variable {rec :: RecOp, draw :: DrawOp}
 
-data LSystem = LSystem {start :: [Operator], rules :: Operator -> [Operator]}
+newtype LSystem = LSystem {start :: [Variable]}
+
+class Recursive a where
+    recurse :: a -> [a]
+    recurseAll :: [a] -> [a]
+    recurseAll = concatMap recurse
+    recurseAllN :: Int -> [a] -> [a]
+    recurseAllN 0 l = l
+    recurseAllN n l = recurseAllN (n - 1) (recurseAll l)
+
+instance Recursive Variable where
+    recurse v@(Variable NOP _)           = [v]
+    recurse v@(Variable (Replicate n) _) = replicate n v
+    recurse (Variable (Custom vs) _)     = vs
 
 sierpinski :: LSystem
-sierpinski = LSystem [f, minus, g, minus, g] exec where
-  exec o =
-    case o of
-      (Operator 'F' Forward)         -> [f, minus, g, plus, f, plus, g, minus, f]
-      (Operator 'G' Forward)         -> [g, g]
-      pm | pm == plus || pm == minus -> [pm]
-      _                              -> []
-  f = Operator 'F' Forward
-  g = Operator 'G' Forward
-  plus = Operator '+' (Turn 120)
-  minus = Operator '-' (Turn 240)
-
-expand :: LSystem -> Int -> [Operator]
-expand (LSystem s r) = expand' s
-  where
-    expand' [] _ = []
-    expand' ops 0 = ops
-    expand' ops n = expand' (concatMap r ops) $ n-1
+sierpinski = LSystem [f, minus, g, minus, g] where
+  f = Variable (Custom [f, minus, g, plus, f, plus, g, minus, f]) Forward
+  g = Variable (Replicate 2) Forward
+  plus = Variable NOP (Turn 120)
+  minus = Variable NOP (Turn 240)
     
 
 
