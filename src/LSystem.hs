@@ -25,7 +25,7 @@ sierpinski = LSystem [f, minus, g, minus, g] exec where
   f = Operator 'F' Forward
   g = Operator 'G' Forward
   plus = Operator '+' (Turn 120)
-  minus = Operator '-' (Turn 240)
+  minus = Operator '-' (Turn (-120))
 
 expand :: LSystem -> Int -> [Operator]
 expand (LSystem s r) = expand' s

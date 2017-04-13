@@ -11,7 +11,7 @@ background :: Color
 background = white
 
 drawing :: Picture
-drawing = drawLSystem sierpinski 10
+drawing = drawLSystem sierpinski 5
 
 main :: IO ()
 main = display window background drawing
