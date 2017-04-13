@@ -1,6 +1,7 @@
 module Main where
 
 import Draw
+import LSystem
 import Graphics.Gloss
 
 window :: Display
@@ -10,7 +11,7 @@ background :: Color
 background = white
 
 drawing :: Picture
-drawing = circle 80
+drawing = drawLSystem sierpinski 10
 
 main :: IO ()
 main = display window background drawing
