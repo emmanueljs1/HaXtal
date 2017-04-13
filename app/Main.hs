@@ -1,6 +1,6 @@
 module Main where
 
-import Lib
+import Draw
 import Graphics.Gloss
 
 window :: Display
