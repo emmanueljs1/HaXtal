@@ -29,7 +29,7 @@ instance Recursive Variable where
     recurse (Variable (Custom vs) _)     = vs
 
 sierpinski :: LSystem
-sierpinski = LSystem [f, minus, g, minus, g] where
+sierpinski = LSystem [f, minus, g, minus, g, g, minus, f, minus, g, g, minus, f, minus, g] where
   f = Variable (Custom [f, minus, g, plus, f, plus, g, minus, f]) Forward
   g = Variable (Replicate 2) Forward
   plus = Variable NOP (Turn 120)
