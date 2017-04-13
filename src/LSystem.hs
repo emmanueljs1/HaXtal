@@ -6,8 +6,6 @@ data Operator = Operator {name :: Char, op :: Op}
 
 data Op = Forward
         | Backward
-        | Right
-        | Left
         | Turn Int
 
 data LSystem = LSystem {start :: [Operator], rules :: Operator -> [Operator]}
