@@ -10,18 +10,19 @@ data Op = Forward
         | Left
         | Turn Int
 
-newtype LSystem = LSystem {rules :: Operator -> [Operator]}
+data LSystem = LSystem {start :: [Operator], rules :: Operator -> [Operator]}
 
-sierpinski o =
-  case o of
-    (Operator 'F' Forward) -> [f, minus, g, plus, f, plus, g, minus, f]
-    (Operator 'G' Forward) -> [g, g]
-    _                      -> []
-  where
-    f = Operator 'F' Forward
-    g = Operator 'G' Forward
-    plus = Operator '+' (Turn 120)
-    minus = Operator '-' (Turn $ -120)
+sierpinski :: LSystem
+sierpinski = LSystem [f, minus, g, minus, g] expand where
+  expand o =
+    case o of
+      (Operator 'F' Forward) -> [f, minus, g, plus, f, plus, g, minus, f]
+      (Operator 'G' Forward) -> [g, g]
+      _                      -> []
+  f = Operator 'F' Forward
+  g = Operator 'G' Forward
+  plus = Operator '+' (Turn 120)
+  minus = Operator '-' (Turn $ -120)
 
 instance Arbitrary LSystem where
   arbitrary = undefined
