@@ -10,8 +10,13 @@ window = InWindow "Nice Window" (200, 200) (10, 10)
 background :: Color
 background = white
 
-drawing :: Picture
-drawing = drawLSystem sierpinski 5
+drawingSierpinski :: Picture
+drawingSierpinski = drawLSystem sierpinski 5
+
+drawingDragon :: Picture
+drawingDragon = drawLSystem dragon 10
 
 main :: IO ()
-main = display window background drawing
+main = do 
+        -- display window background drawingSierpinski
+        display window background drawingDragon
