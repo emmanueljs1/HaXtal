@@ -17,6 +17,4 @@ drawingDragon :: Picture
 drawingDragon = drawLSystem dragon 10
 
 main :: IO ()
-main = do 
-        -- display window background drawingSierpinski
-        display window background drawingDragon
+main = display window background drawingDragon
