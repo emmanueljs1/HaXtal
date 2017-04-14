@@ -2,11 +2,11 @@ module LSystem where
 
 import Test.QuickCheck
 
-data RecOp = Stay
+data RecOp = NOPr
            | Replicate Int
            | Custom [Variable]
 
-data DrawOp = Ignore
+data DrawOp = NOPd
             | Forward
             | Backward
             | Turn Float
@@ -25,18 +25,18 @@ class Recursive a where
     recurseAllN n l = recurseAllN (n - 1) (recurseAll l)
 
 instance Recursive Variable where
-    recurse v@(Variable Stay _)           = [v]
+    recurse v@(Variable NOPr _)           = [v]
     recurse v@(Variable (Replicate n) _) = replicate n v
     recurse (Variable (Custom vs) _)     = vs
 
 makePlus :: Float -> Variable
-makePlus f = Variable Stay (Turn f)
+makePlus f = Variable NOPr (Turn f)
 
 makeMinus :: Float -> Variable
-makeMinus f = Variable Stay (Turn (360 - f))
+makeMinus f = Variable NOPr (Turn (360 - f))
 
 forward :: Variable
-forward = Variable Stay Forward
+forward = Variable NOPr Forward
 
 sierpinski :: LSystem
 sierpinski = LSystem [f, minus, g, minus, g] where
@@ -47,8 +47,8 @@ sierpinski = LSystem [f, minus, g, minus, g] where
 
 dragon :: LSystem
 dragon = LSystem [forward, x] where
-    x = Variable (Custom [x, plus, y, forward, plus]) Ignore
-    y = Variable (Custom [minus, forward, x, minus, y]) Ignore
+    x = Variable (Custom [x, plus, y, forward, plus]) NOPd
+    y = Variable (Custom [minus, forward, x, minus, y]) NOPd
     plus = makePlus 90
     minus = makeMinus 90
 
