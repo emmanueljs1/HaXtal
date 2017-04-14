@@ -7,12 +7,33 @@
   (major1) == 0 && (major2) <  1 || \
   (major1) == 0 && (major2) == 1 && (minor) <= 0)
 
+/* package QuickCheck-2.9.2 */
+#define VERSION_QuickCheck "2.9.2"
+#define MIN_VERSION_QuickCheck(major1,major2,minor) (\
+  (major1) <  2 || \
+  (major1) == 2 && (major2) <  9 || \
+  (major1) == 2 && (major2) == 9 && (minor) <= 2)
+
 /* package base-4.9.1.0 */
 #define VERSION_base "4.9.1.0"
 #define MIN_VERSION_base(major1,major2,minor) (\
   (major1) <  4 || \
   (major1) == 4 && (major2) <  9 || \
   (major1) == 4 && (major2) == 9 && (minor) <= 1)
+
+/* package gloss-1.10.2.5 */
+#define VERSION_gloss "1.10.2.5"
+#define MIN_VERSION_gloss(major1,major2,minor) (\
+  (major1) <  1 || \
+  (major1) == 1 && (major2) <  10 || \
+  (major1) == 1 && (major2) == 10 && (minor) <= 2)
+
+/* package hlint-1.9.41 */
+#define VERSION_hlint "1.9.41"
+#define MIN_VERSION_hlint(major1,major2,minor) (\
+  (major1) <  1 || \
+  (major1) == 1 && (major2) <  9 || \
+  (major1) == 1 && (major2) == 9 && (minor) <= 41)
 
 /* tool alex-3.2.1 */
 #define TOOL_VERSION_alex "3.2.1"
@@ -98,7 +119,7 @@
   (major1) == 2 && (major2) <  26 || \
   (major1) == 2 && (major2) == 26 && (minor) <= 0)
 
-#define CURRENT_COMPONENT_ID "haxal-0.1.0.0-5RTt9dmOvEGLcGJVgwIJJO"
+#define CURRENT_COMPONENT_ID "haxal-0.1.0.0-G5vaRwmdVOU97bz7EW6rmW"
 
-#define CURRENT_PACKAGE_KEY "haxal-0.1.0.0-5RTt9dmOvEGLcGJVgwIJJO"
+#define CURRENT_PACKAGE_KEY "haxal-0.1.0.0-G5vaRwmdVOU97bz7EW6rmW"
 

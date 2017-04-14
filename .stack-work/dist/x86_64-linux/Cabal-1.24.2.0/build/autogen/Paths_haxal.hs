@@ -30,7 +30,7 @@ version = Version [0,1,0,0] []
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
 
 bindir     = "/home/emma/Documents/haskell/project_dbuckman_emsu_kyro-proj/.stack-work/install/x86_64-linux/lts-8.9/8.0.2/bin"
-libdir     = "/home/emma/Documents/haskell/project_dbuckman_emsu_kyro-proj/.stack-work/install/x86_64-linux/lts-8.9/8.0.2/lib/x86_64-linux-ghc-8.0.2/haxal-0.1.0.0-5RTt9dmOvEGLcGJVgwIJJO"
+libdir     = "/home/emma/Documents/haskell/project_dbuckman_emsu_kyro-proj/.stack-work/install/x86_64-linux/lts-8.9/8.0.2/lib/x86_64-linux-ghc-8.0.2/haxal-0.1.0.0-G5vaRwmdVOU97bz7EW6rmW"
 dynlibdir  = "/home/emma/Documents/haskell/project_dbuckman_emsu_kyro-proj/.stack-work/install/x86_64-linux/lts-8.9/8.0.2/lib/x86_64-linux-ghc-8.0.2"
 datadir    = "/home/emma/Documents/haskell/project_dbuckman_emsu_kyro-proj/.stack-work/install/x86_64-linux/lts-8.9/8.0.2/share/x86_64-linux-ghc-8.0.2/haxal-0.1.0.0"
 libexecdir = "/home/emma/Documents/haskell/project_dbuckman_emsu_kyro-proj/.stack-work/install/x86_64-linux/lts-8.9/8.0.2/libexec"
