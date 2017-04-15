@@ -10,7 +10,7 @@ drawLSystem lsys depth =
   where
     d _ _ []                 = []
     d curPos curVec (o : os) = case draw o of
-      NOPd     -> d curPos curVec os
+      NOP     -> d curPos curVec os
       Forward  -> (curPos + curVec) : d (curPos + curVec) curVec os
       Turn deg ->
         let newV = normalizeV (rotateV (deg * (pi / 180.0)) curVec) in
