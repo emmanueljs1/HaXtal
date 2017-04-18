@@ -19,6 +19,7 @@ library
   build-depends:       base >= 4.7 && < 5
                      , gloss
                      , hlint
+                     , containers
                      , QuickCheck
   default-language:    Haskell2010
 

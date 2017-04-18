@@ -1,51 +1,46 @@
 module LSystem where
 
 import Test.QuickCheck
+import Data.Map
 
-data DrawOp = NOP
-            | Forward
-            | Turn Float
-            deriving (Show, Eq)
+data Symbol = Forward
+            | Turn Double
+            | Var Char
+            deriving (Eq, Ord, Show)
 
-data Variable = Variable {rec :: [Variable], draw :: DrawOp}
+type Rules = Map Symbol [Symbol]
 
-newtype LSystem = LSystem {start :: [Variable]}
+--data Variable = Variable {rec :: [Variable], draw :: DrawOp}
 
-class Recursive a where
-    recurse :: a -> [a]
-    recurseAll :: [a] -> [a]
-    recurseAll = concatMap recurse
-    recurseAllN :: Int -> [a] -> [a]
-    recurseAllN 0 l = l
-    recurseAllN n l = recurseAllN (n - 1) (recurseAll l)
+data LSystem = LSystem {start :: [Symbol], rules :: Rules}
 
-instance Recursive Variable where
-    recurse v@(Variable [] _)           = [v]
-    recurse (Variable vs _)     = vs
+expand :: LSystem -> [[Symbol]]
+expand (LSystem initial rules) = iterate app initial
+  where
+    app = concatMap (\s -> (findWithDefault [s] s rules))
 
-makePlus :: Float -> Variable
-makePlus f = Variable [] (Turn f)
+makePlus :: Double -> Symbol
+makePlus = Turn
 
-makeMinus :: Float -> Variable
-makeMinus f = Variable [] (Turn (360 - f))
-
-forward :: Variable
-forward = Variable [] Forward
+makeMinus :: Double -> Symbol
+makeMinus f = Turn (360 - f)
 
 sierpinski :: LSystem
-sierpinski = LSystem [f, minus, g, minus, g] where
-  f = Variable [f, minus, g, plus, f, plus, g, minus, f] Forward
-  g = Variable [g, g] Forward
+sierpinski = LSystem [f, minus, g, minus, g] (fRule <> gRule) where
+  f = Var 'F'
+  g = Var 'G'
+  fRule = singleton f [Forward, f, minus, g, plus, Forward, f, plus, g, minus, Forward, f]
+  gRule = singleton [Forward, Forward, g, g]
   plus = makePlus 120
   minus = makeMinus 120
-
+{-
 dragon :: LSystem
 dragon = LSystem [forward, x] where
     x = Variable [x, plus, y, forward, plus] NOP
     y = Variable [minus, forward, x, minus, y] NOP
     plus = makePlus 90
     minus = makeMinus 90
-
+-}
 instance Arbitrary LSystem where
   arbitrary = undefined
   shrink = undefined
