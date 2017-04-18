@@ -1,6 +1,7 @@
 module LSystem where
 
 import Test.QuickCheck
+import Control.Monad
 
 data DrawOp = NOP
             | Forward
@@ -46,6 +47,14 @@ dragon = LSystem [forward, x] where
     plus = makePlus 90
     minus = makeMinus 90
 
+instance Arbitrary DrawOp where
+  arbitrary = oneof [elements [NOP, Forward], Turn <$> arbitrary]
+  shrink = undefined
+
+instance Arbitrary Variable where
+  arbitrary = liftM2 Variable (listOf arbitrary) arbitrary
+  shrink = undefined
+
 instance Arbitrary LSystem where
-  arbitrary = undefined
+  arbitrary = LSystem <$> arbitrary
   shrink = undefined
