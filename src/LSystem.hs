@@ -1,63 +1,79 @@
 module LSystem where
 
+import Prelude hiding (lookup)
 import Test.QuickCheck
-import Data.Map
+import Data.Map hiding (mapMaybe)
 import Data.Monoid
+import Data.Maybe
 
 data Symbol = Forward
             | LeftTurn
             | RightTurn
-            | Var Char
             deriving (Eq, Ord, Show)
 
-type Rules = Map Symbol [Symbol]
+type Rules = Map Char String
 
-data LSystem = LSystem {start :: [Symbol], rules :: Rules, angle :: Double}
+type DrawRules = Map Char Symbol
+
+data LSystem = LSystem {start :: String, rules :: Rules, toDraw :: DrawRules, angle :: Double}
 
 expand :: LSystem -> [[Symbol]]
-expand (LSystem initial rs _) = iterate app initial
+expand (LSystem initial rs td _) = mapMaybe (`lookup` td) <$> iterate app initial
   where
     app = concatMap (\s -> findWithDefault [s] s rs)
 
-toSymbol :: Char -> Symbol
-toSymbol 'F' = Forward
-toSymbol '+' = RightTurn
-toSymbol '-' = LeftTurn
-toSymbol  z = Var z
+
+makeDrawRule :: Char -> Symbol -> DrawRules
+makeDrawRule = singleton
+
+fDrawRule :: DrawRules
+fDrawRule = makeDrawRule 'F' Forward
+
+plusDrawRule :: DrawRules
+plusDrawRule = makeDrawRule '+' RightTurn
+
+minusDrawRule :: DrawRules
+minusDrawRule = makeDrawRule '-' LeftTurn
+
+defaultDrawRules :: DrawRules
+defaultDrawRules = fDrawRule <> plusDrawRule <> minusDrawRule
 
 makeRule :: Char -> String -> Rules
-makeRule c s = singleton (toSymbol c) $ toSymbol <$> s
+makeRule = singleton
 
-makeStart :: String -> [Symbol]
-makeStart = fmap toSymbol
+makeStart :: String -> String
+makeStart = id
 
 sierpinski' :: LSystem
-sierpinski' = LSystem (makeStart "FX") (r1 <> r2 <> r3) 60 where
-  r1 = makeRule 'F' "Z"
-  r2 = makeRule 'X' "+FY-FX-FY+"
-  r3 = makeRule 'Y' "-FX+FY+FX-"
+sierpinski' = LSystem (makeStart "X") (r1 <> r2) (defaultDrawRules <> dr1 <> dr2) 60 where
+  r1 = makeRule 'X' "+Y-X-Y+"
+  r2 = makeRule 'Y' "-X+Y+X-"
+  dr1 = makeDrawRule 'X' Forward
+  dr2 = makeDrawRule 'Y' Forward
 
-sierpinski :: LSystem
-sierpinski = LSystem (makeStart "FA-FG-FG") (r1 <> r2 <> r3) 120 where
-  r1 = makeRule 'A' "FA-FG+FA+FG-FA"
-  r2 = makeRule 'G' "FGFG"
-  r3 = makeRule 'F' "Z"
+-- sierpinski :: LSystem
+-- sierpinski = LSystem (makeStart "FA-FG-FG") (r1 <> r2) 120 where
+--   r1 = makeRule 'A' "A-G+A+G-A"
+--   r2 = makeRule 'G' "GG"
+--   toSymbol 'A' = Forward
+--   toSymbol 'G' = Forward
+--   -- r3 = makeRule 'F' "Z"
 
-dragon :: LSystem
-dragon = LSystem (makeStart "FX") (r1 <> r2) 90 where
-  r1 = makeRule 'X' "X+YF+"
-  r2 = makeRule 'Y' "-FX-Y"
+-- dragon :: LSystem
+-- dragon = LSystem (makeStart "FX") (r1 <> r2) 90 where
+--   r1 = makeRule 'X' "X+YF+"
+--   r2 = makeRule 'Y' "-FX-Y"
 
-hilbert :: LSystem
-hilbert = LSystem (makeStart "X") (r1 <> r2) 90 where
-  r1 = makeRule 'X' "-YF+XFX+FY-"
-  r2 = makeRule 'Y' "+XF-YFY-FX+"
+-- hilbert :: LSystem
+-- hilbert = LSystem (makeStart "X") (r1 <> r2) 90 where
+--   r1 = makeRule 'X' "-YF+XFX+FY-"
+--   r2 = makeRule 'Y' "+XF-YFY-FX+"
 
-gosper :: LSystem
-gosper = LSystem (makeStart "FA") (r1 <> r2 <> r3) 60 where
-  r1 = makeRule 'A' "FA-FB--FB+FA++FAFA+FB-"
-  r2 = makeRule 'B' "+FA-FBFB--FB-FA++FA+FB"
-  r3 = makeRule 'F' "Z"
+-- gosper :: LSystem
+-- gosper = LSystem (makeStart "FA") (r1 <> r2 <> r3) 60 where
+--   r1 = makeRule 'A' "FA-FB--FB+FA++FAFA+FB-"
+--   r2 = makeRule 'B' "+FA-FBFB--FB-FA++FA+FB"
+--   r3 = makeRule 'F' "Z"
 
 instance Arbitrary LSystem where
   arbitrary = undefined
