@@ -1,60 +1,88 @@
 module LSystem where
 
+import Prelude hiding (lookup)
 import Test.QuickCheck
+import Data.Map hiding (mapMaybe)
+import Data.Monoid
+import Data.Maybe
 import Control.Monad
 
-data DrawOp = NOP
-            | Forward
-            | Turn Float
-            deriving (Show, Eq)
+data Symbol = Forward
+            | LeftTurn
+            | RightTurn
+            deriving (Eq, Ord, Show)
 
-data Variable = Variable {rec :: [Variable], draw :: DrawOp}
+type Rules = Map Char String
 
-newtype LSystem = LSystem {start :: [Variable]}
+type DrawRules = Map Char Symbol
 
-class Recursive a where
-    recurse :: a -> [a]
-    recurseAll :: [a] -> [a]
-    recurseAll = concatMap recurse
-    recurseAllN :: Int -> [a] -> [a]
-    recurseAllN 0 l = l
-    recurseAllN n l = recurseAllN (n - 1) (recurseAll l)
+data LSystem = LSystem {start :: String, rules :: Rules, toDraw :: DrawRules, angle :: Double}
 
-instance Recursive Variable where
-    recurse v@(Variable [] _)           = [v]
-    recurse (Variable vs _)     = vs
+expand :: LSystem -> [[Symbol]]
+expand (LSystem initial rs td _) = mapMaybe (`lookup` td) <$> iterate app initial
+  where
+    app = concatMap (\s -> findWithDefault [s] s rs)
 
-makePlus :: Float -> Variable
-makePlus f = Variable [] (Turn f)
 
-makeMinus :: Float -> Variable
-makeMinus f = Variable [] (Turn (360 - f))
+makeDrawRule :: Char -> Symbol -> DrawRules
+makeDrawRule = singleton
 
-forward :: Variable
-forward = Variable [] Forward
+fDrawRule :: DrawRules
+fDrawRule = makeDrawRule 'F' Forward
+
+plusDrawRule :: DrawRules
+plusDrawRule = makeDrawRule '+' RightTurn
+
+minusDrawRule :: DrawRules
+minusDrawRule = makeDrawRule '-' LeftTurn
+
+defaultDrawRules :: DrawRules
+defaultDrawRules = fDrawRule <> plusDrawRule <> minusDrawRule
+
+makeRule :: Char -> String -> Rules
+makeRule = singleton
+
+sierpinski' :: LSystem
+sierpinski' = LSystem "X" (r1 <> r2) (defaultDrawRules <> dr1 <> dr2) 60 where
+  r1 = makeRule 'X' "+Y-X-Y+"
+  r2 = makeRule 'Y' "-X+Y+X-"
+  dr1 = makeDrawRule 'X' Forward
+  dr2 = makeDrawRule 'Y' Forward
 
 sierpinski :: LSystem
-sierpinski = LSystem [f, minus, g, minus, g] where
-  f = Variable [f, minus, g, plus, f, plus, g, minus, f] Forward
-  g = Variable [g, g] Forward
-  plus = makePlus 120
-  minus = makeMinus 120
+sierpinski = LSystem "A-G-G" (r1 <> r2)
+             (defaultDrawRules <> dr1 <> dr2) 120 where
+  r1 = makeRule 'A' "A-G+A+G-A"
+  r2 = makeRule 'G' "GG"
+  dr1 = makeDrawRule 'A' Forward
+  dr2 = makeDrawRule 'G' Forward
 
 dragon :: LSystem
-dragon = LSystem [forward, x] where
-    x = Variable [x, plus, y, forward, plus] NOP
-    y = Variable [minus, forward, x, minus, y] NOP
-    plus = makePlus 90
-    minus = makeMinus 90
+dragon = LSystem "FX" (r1 <> r2) defaultDrawRules 90 where
+  r1 = makeRule 'X' "X+YF+"
+  r2 = makeRule 'Y' "-FX-Y"
 
-instance Arbitrary DrawOp where
-  arbitrary = oneof [elements [NOP, Forward], Turn <$> arbitrary]
-  shrink = undefined
+hilbert :: LSystem
+hilbert = LSystem "X" (r1 <> r2) defaultDrawRules 90 where
+  r1 = makeRule 'X' "-YF+XFX+FY-"
+  r2 = makeRule 'Y' "+XF-YFY-FX+"
 
-instance Arbitrary Variable where
-  arbitrary = liftM2 Variable (listOf arbitrary) arbitrary
-  shrink = undefined
+gosper :: LSystem
+gosper = LSystem "A" (r1 <> r2)
+         (defaultDrawRules <> dr1 <> dr2) 60 where
+  r1 = makeRule 'A' "A-B--B+A++AA+B-"
+  r2 = makeRule 'B' "+A-BB--B-A++A+B"
+  dr1 = makeDrawRule 'A' Forward
+  dr2 = makeDrawRule 'B' Forward
 
-instance Arbitrary LSystem where
-  arbitrary = LSystem <$> arbitrary
-  shrink = undefined
+--instance Arbitrary DrawOp where
+--  arbitrary = oneof [elements [NOP, Forward], Turn <$> arbitrary]
+--  shrink = undefined
+
+--instance Arbitrary Variable where
+--  arbitrary = liftM2 Variable (listOf arbitrary) arbitrary
+--  shrink = undefined
+
+--instance Arbitrary LSystem where
+--  arbitrary = LSystem <$> arbitrary
+--  shrink = undefined
