@@ -44,13 +44,6 @@ defaultDrawRules = fDrawRule <> plusDrawRule <> minusDrawRule
 makeRule :: Char -> String -> Rules
 makeRule = singleton
 
-sierpinski' :: LSystem
-sierpinski' = LSystem "X" (r1 <> r2) (defaultDrawRules <> dr1 <> dr2) 60 where
-  r1 = makeRule 'X' "+Y-X-Y+"
-  r2 = makeRule 'Y' "-X+Y+X-"
-  dr1 = makeDrawRule 'X' Forward
-  dr2 = makeDrawRule 'Y' Forward
-
 sierpinski :: LSystem
 sierpinski = LSystem "A-G-G" (r1 <> r2)
              (defaultDrawRules <> dr1 <> dr2) 120 where
