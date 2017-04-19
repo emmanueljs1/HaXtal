@@ -16,10 +16,12 @@ type Rules = Map Char String
 
 type DrawRules = Map Char Symbol
 
-data LSystem = LSystem {start :: String, rules :: Rules, toDraw :: DrawRules, angle :: Double}
+data LSystem = LSystem {start :: String, rules :: Rules,
+ toDraw :: DrawRules, angle :: Double}
 
 expand :: LSystem -> [[Symbol]]
-expand (LSystem initial rs td _) = mapMaybe (`lookup` td) <$> iterate app initial
+expand (LSystem initial rs td _) =
+  mapMaybe (`lookup` td) <$> iterate app initial
   where
     app = concatMap (\s -> findWithDefault [s] s rs)
 
@@ -57,6 +59,14 @@ sierpinski = LSystem "A-G-G" (r1 <> r2)
   dr1 = makeDrawRule 'A' Forward
   dr2 = makeDrawRule 'G' Forward
 
+sierpinskiArrowhead :: LSystem
+sierpinskiArrowhead =
+  LSystem "A" (r1 <> r2) (defaultDrawRules <> dr1 <> dr2) 60 where
+  r1 = makeRule 'A' "+B-A-B+"
+  r2 = makeRule 'B' "-A+B+A-"
+  dr1 = makeDrawRule 'A' Forward
+  dr2 = makeDrawRule 'B' Forward
+
 dragon :: LSystem
 dragon = LSystem "FX" (r1 <> r2) defaultDrawRules 90 where
   r1 = makeRule 'X' "X+YF+"
@@ -75,14 +85,6 @@ gosper = LSystem "A" (r1 <> r2)
   dr1 = makeDrawRule 'A' Forward
   dr2 = makeDrawRule 'B' Forward
 
---instance Arbitrary DrawOp where
---  arbitrary = oneof [elements [NOP, Forward], Turn <$> arbitrary]
---  shrink = undefined
-
---instance Arbitrary Variable where
---  arbitrary = liftM2 Variable (listOf arbitrary) arbitrary
---  shrink = undefined
-
---instance Arbitrary LSystem where
---  arbitrary = LSystem <$> arbitrary
---  shrink = undefined
+instance Arbitrary LSystem where
+  arbitrary = undefined
+  shrink = undefined
