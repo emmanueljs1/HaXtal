@@ -41,39 +41,38 @@ defaultDrawRules = fDrawRule <> plusDrawRule <> minusDrawRule
 makeRule :: Char -> String -> Rules
 makeRule = singleton
 
-makeStart :: String -> String
-makeStart = id
-
 sierpinski' :: LSystem
-sierpinski' = LSystem (makeStart "X") (r1 <> r2) (defaultDrawRules <> dr1 <> dr2) 60 where
+sierpinski' = LSystem "X" (r1 <> r2) (defaultDrawRules <> dr1 <> dr2) 60 where
   r1 = makeRule 'X' "+Y-X-Y+"
   r2 = makeRule 'Y' "-X+Y+X-"
   dr1 = makeDrawRule 'X' Forward
   dr2 = makeDrawRule 'Y' Forward
 
--- sierpinski :: LSystem
--- sierpinski = LSystem (makeStart "FA-FG-FG") (r1 <> r2) 120 where
---   r1 = makeRule 'A' "A-G+A+G-A"
---   r2 = makeRule 'G' "GG"
---   toSymbol 'A' = Forward
---   toSymbol 'G' = Forward
---   -- r3 = makeRule 'F' "Z"
+sierpinski :: LSystem
+sierpinski = LSystem "A-G-G" (r1 <> r2)
+             (defaultDrawRules <> dr1 <> dr2) 120 where
+  r1 = makeRule 'A' "A-G+A+G-A"
+  r2 = makeRule 'G' "GG"
+  dr1 = makeDrawRule 'A' Forward
+  dr2 = makeDrawRule 'G' Forward
 
--- dragon :: LSystem
--- dragon = LSystem (makeStart "FX") (r1 <> r2) 90 where
---   r1 = makeRule 'X' "X+YF+"
---   r2 = makeRule 'Y' "-FX-Y"
+dragon :: LSystem
+dragon = LSystem "FX" (r1 <> r2) defaultDrawRules 90 where
+  r1 = makeRule 'X' "X+YF+"
+  r2 = makeRule 'Y' "-FX-Y"
 
--- hilbert :: LSystem
--- hilbert = LSystem (makeStart "X") (r1 <> r2) 90 where
---   r1 = makeRule 'X' "-YF+XFX+FY-"
---   r2 = makeRule 'Y' "+XF-YFY-FX+"
+hilbert :: LSystem
+hilbert = LSystem "X" (r1 <> r2) defaultDrawRules 90 where
+  r1 = makeRule 'X' "-YF+XFX+FY-"
+  r2 = makeRule 'Y' "+XF-YFY-FX+"
 
--- gosper :: LSystem
--- gosper = LSystem (makeStart "FA") (r1 <> r2 <> r3) 60 where
---   r1 = makeRule 'A' "FA-FB--FB+FA++FAFA+FB-"
---   r2 = makeRule 'B' "+FA-FBFB--FB-FA++FA+FB"
---   r3 = makeRule 'F' "Z"
+gosper :: LSystem
+gosper = LSystem "A" (r1 <> r2)
+         (defaultDrawRules <> dr1 <> dr2) 60 where
+  r1 = makeRule 'A' "A-B--B+A++AA+B-"
+  r2 = makeRule 'B' "+A-BB--B-A++A+B"
+  dr1 = makeDrawRule 'A' Forward
+  dr2 = makeDrawRule 'B' Forward
 
 instance Arbitrary LSystem where
   arbitrary = undefined
