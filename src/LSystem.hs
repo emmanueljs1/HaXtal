@@ -5,6 +5,7 @@ import Test.QuickCheck
 import Data.Map hiding (mapMaybe)
 import Data.Monoid
 import Data.Maybe
+import Control.Monad
 
 data Symbol = Forward
             | LeftTurn
@@ -74,6 +75,14 @@ gosper = LSystem "A" (r1 <> r2)
   dr1 = makeDrawRule 'A' Forward
   dr2 = makeDrawRule 'B' Forward
 
-instance Arbitrary LSystem where
-  arbitrary = undefined
-  shrink = undefined
+--instance Arbitrary DrawOp where
+--  arbitrary = oneof [elements [NOP, Forward], Turn <$> arbitrary]
+--  shrink = undefined
+
+--instance Arbitrary Variable where
+--  arbitrary = liftM2 Variable (listOf arbitrary) arbitrary
+--  shrink = undefined
+
+--instance Arbitrary LSystem where
+--  arbitrary = LSystem <$> arbitrary
+--  shrink = undefined

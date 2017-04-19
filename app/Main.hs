@@ -14,7 +14,7 @@ drawingSierpinski :: Picture
 drawingSierpinski = drawLSystem sierpinski 8
 
 drawingDragon :: Picture
-drawingDragon = drawLSystem dragon 10
+drawingDragon = drawLSystem dragon 15
 
 drawingHilbert = drawLSystem hilbert 5
 
