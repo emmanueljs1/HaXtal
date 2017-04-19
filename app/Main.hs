@@ -16,7 +16,11 @@ drawingSierpinski = drawLSystem sierpinski 5
 drawingDragon :: Picture
 drawingDragon = drawLSystem dragon 10
 
+drawingHilbert = drawLSystem hilbert 5
+
+drawingGosper = drawLSystem gosper 4
+
 main :: IO ()
 main = do 
        -- display window background drawingSierpinski
-       display window background drawingDragon
+       display window background drawingGosper
