@@ -11,12 +11,12 @@ background :: Color
 background = white
 
 drawingSierpinski :: Picture
-drawingSierpinski = drawLSystem sierpinski 5
+drawingSierpinski = drawLSystem sierpinski' 5
 
 drawingDragon :: Picture
 drawingDragon = drawLSystem dragon 10
 
 main :: IO ()
 main = do 
-       -- display window background drawingSierpinski
-        display window background drawingDragon
+       display window background drawingSierpinski
+      --  display window background drawingDragon

@@ -12,5 +12,7 @@ drawLSystem lsys depth = line $ (0.0, 0.0) : d (0.0, 0.0) (0.0, 1.0)
     d curPos curVec (o : os) = case o of
       Var _     -> d curPos curVec os
       Forward  -> (curPos + curVec) : d (curPos + curVec) curVec os
-      Turn deg -> let newV = normalizeV (rotateV ((realToFrac deg) * (pi / 180.0)) curVec) in
+      RightTurn -> let newV = normalizeV (rotateV ((realToFrac (angle lsys)) * (pi / 180.0)) curVec) in
+        (d curPos newV os)
+      LeftTurn -> let newV = normalizeV (rotateV ((realToFrac (360 - (angle lsys))) * (pi / 180.0)) curVec) in
         (d curPos newV os)
