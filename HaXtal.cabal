@@ -1,4 +1,4 @@
-name:                haxal
+name:                HaXtal
 version:             0.1.0.0
 -- synopsis:
 -- description:
@@ -21,24 +21,26 @@ library
                      , hlint
                      , containers
                      , QuickCheck
+                     , transformers
   default-language:    Haskell2010
 
-executable haxal-exe
+executable haxtal-exe
   hs-source-dirs:      app
   main-is:             Main.hs
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
                      , gloss
                      , hlint
-                     , haxal
+                     , HaXtal
+                     , transformers
   default-language:    Haskell2010
 
-test-suite haxal-test
+test-suite haxtal-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Spec.hs
   build-depends:       base
-                     , haxal
+                     , HaXtal
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
 
