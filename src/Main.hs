@@ -12,8 +12,8 @@ import qualified Data.Text as T
 import qualified Data.Map as Map
 import Data.JSString
 import Data.Monoid
+
 import qualified GHCJS.DOM.JSFFI.Generated.CanvasRenderingContext2D as D
--- import qualified GHCJS.DOM.JSFFI.Generated.CanvasPath as P
 import qualified GHCJS.DOM.Types as DOM
 import qualified GHCJS.DOM.JSFFI.Generated.HTMLCanvasElement as CTX
 main :: IO ()
@@ -22,17 +22,15 @@ main = mainWidget $ do
   el "h2" $ text "Please select a fractal to display:"
   (e, _) <- element "canvas" def blank
   let canvas = DOM.HTMLCanvasElement $ DOM.unElement . DOM.toElement . _element_raw $ e
-  _ctx <- CTX.getContext canvas (pack "2d") --[]
-  let ctx = DOM.CanvasRenderingContext2D $ _ctx
+  ctx' <- CTX.getContext canvas (pack "2d")
+  let ctx = DOM.CanvasRenderingContext2D $ ctx'
   CTX.setWidth canvas 1000
   CTX.setHeight canvas 1000
-  drawPaths (getPaths plant 5) ctx
-  return ()
+  drawPaths (getPaths gosper 5) ctx
 
 drawPaths :: (MonadIO m) => [[Vector]] -> DOM.CanvasRenderingContext2D -> m ()
-drawPaths paths ctx = D.save ctx >> (foldM_ drawPath () paths) >> D.restore ctx where
+drawPaths paths ctx = D.beginPath ctx >> (foldM_ drawPath () paths) >> D.stroke ctx where
   drawPath _ p@(p1:_) = do
-    D.beginPath ctx
-    D.moveTo ctx ((fst p1) * 10.0) ((snd p1) * 10.0)
-    foldM_ (\_ poi -> D.lineTo ctx ((fst poi) * 10.0) ((snd poi) * 10.0)) () p
-    D.stroke ctx
+    let t v = map2Tuple (* 5.0) v
+    uncurry (D.moveTo ctx) $ t p1
+    foldM_ (\_ poi -> uncurry (D.lineTo ctx) $ t poi) () p
