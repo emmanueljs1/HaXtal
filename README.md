@@ -10,7 +10,7 @@ Kyle Rosenbluth
 
 Things to do for haxtal
 
-- [ ] Arbitrary (Emma)
+- [x] Arbitrary (Emma)
 - [ ] Animate the draw (Maybe) (Kyle)
 - [ ] Zoom (for certain ones) (Just David)
 - [ ] Tests and commenting (Emma but rly all of us)
