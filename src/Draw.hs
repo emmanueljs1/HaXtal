@@ -2,13 +2,13 @@ module Draw where
 
 import LSystem
 import Control.Monad.Trans.State.Lazy
---import Graphics.Gloss
---import Graphics.Gloss.Data.Vector
 import Debug.Trace
 
 type Vector = (Float, Float)
+
 vecSum :: Vector -> Vector -> Vector
 vecSum (a1, a2) (b1, b2) = (a1 + b1, a2 + b2)
+
 rotateV :: Float -> Vector -> Vector
 rotateV r (x, y)
  =      (  x * cos r - y * sin r
@@ -16,7 +16,8 @@ rotateV r (x, y)
 
 
 getPaths :: Int -> LSystem -> [[Vector]]
-getPaths depth lsys = (removeBad $ (0.0, 0.0) : getAll (expand lsys !! depth) [((0.0, 0.0), (0.0, -1.0))])
+getPaths depth lsys = removeBad $ (0.0, 0.0) : rest where
+  rest = getAll (expand lsys !! depth) [((0.0, 0.0), (0.0, -1.0))]
 
 -- getNextLine :: [Symbol] -> [(Point, Vector)] -> ([Point], [Symbol])
 -- getNextLine [] _         = []
