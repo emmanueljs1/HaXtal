@@ -11,6 +11,7 @@ data Symbol = Forward
             | Turn Float
             | PushState
             | PopState
+            | BOOP
             deriving (Eq, Ord, Show)
 
 type Rules = Map Char String
