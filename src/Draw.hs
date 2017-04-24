@@ -2,12 +2,21 @@ module Draw where
 
 import LSystem
 import Control.Monad.Trans.State.Lazy
-import Graphics.Gloss
-import Graphics.Gloss.Data.Vector
+--import Graphics.Gloss
+--import Graphics.Gloss.Data.Vector
 import Debug.Trace
 
-drawLSystem :: LSystem -> Int -> Picture
-drawLSystem lsys depth = pictures (removeBad $ (0.0, 0.0) : getAll (expand lsys !! depth) [((0.0, 0.0), (1.0, 0.0))])
+type Vector = (Float, Float)
+vecSum :: Vector -> Vector -> Vector
+vecSum (a1, a2) (b1, b2) = (a1 + b1, a2 + b2)
+rotateV :: Float -> Vector -> Vector
+rotateV r (x, y)
+ =      (  x * cos r - y * sin r
+        ,  x * sin r + y * cos r)
+
+
+getPaths :: LSystem -> Int -> [[Vector]]
+getPaths lsys depth = (removeBad $ (0.0, 0.0) : getAll (expand lsys !! depth) [((0.0, 0.0), (1.0, 0.0))])
 
 -- getNextLine :: [Symbol] -> [(Point, Vector)] -> ([Point], [Symbol])
 -- getNextLine [] _         = []
@@ -18,7 +27,7 @@ drawLSystem lsys depth = pictures (removeBad $ (0.0, 0.0) : getAll (expand lsys 
 --                             (val, nst) = runState (getNext s) st
 --                             (vals, rest) = getNextLine ss nst
 
-getAll :: [Symbol] -> [(Point, Vector)] -> [Point]
+getAll :: [Symbol] -> [(Vector, Vector)] -> [Vector]
 getAll [] _        = []
 getAll (s : ss) st = val : getAll ss nst
                      where
@@ -29,7 +38,7 @@ getAll (s : ss) st = val : getAll ss nst
 map2Tuple :: (a -> b) -> (a, a) -> (b, b)
 map2Tuple f (x, y) = (f x, f y)
 
-getNextLine :: [Point] -> ([Point], [Point])
+getNextLine :: [Vector] -> ([Vector], [Vector])
 getNextLine []            = ([], [])
 getNextLine (p : ps)
               | fst p < -5000 = trace (show $ length ps) ([], map2Tuple (10000 +) p : ps)
@@ -37,16 +46,16 @@ getNextLine (p : ps)
               where
                 (ln, remPts) = getNextLine ps
 
-removeBad :: [Point] -> [Picture]
+removeBad :: [Vector] -> [[Vector]]
 removeBad []  = []
-removeBad pts = line ln : removeBad remPts
+removeBad pts = ln : removeBad remPts
                 where
                   (ln, remPts) = getNextLine pts
 
 
-getNext :: Symbol -> State [(Point, Vector)] Point
+getNext :: Symbol -> State [(Vector, Vector)] Vector
 getNext Forward   = do ((curPos, curVec) : states) <- get
-                       let newPos = curPos + curVec
+                       let newPos = curPos `vecSum` curVec
                        put ((newPos, curVec) : states)
                        return newPos
 getNext (Turn a)  = do ((curPos, curVec) : states) <- get
