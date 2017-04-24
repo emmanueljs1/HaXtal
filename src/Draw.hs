@@ -2,6 +2,7 @@ module Draw where
 
 import LSystem
 import Control.Monad.Trans.State.Lazy
+import Graphics.Gloss hiding (Vector)
 import Debug.Trace
 
 type Vector = (Float, Float)
@@ -14,6 +15,8 @@ rotateV r (x, y)
  =      (  x * cos r - y * sin r
         ,  x * sin r + y * cos r)
 
+drawPicture :: Int -> LSystem -> Picture
+drawPicture depth lsys = pictures (line <$> getPaths depth lsys)
 
 getPaths :: Int -> LSystem -> [[Vector]]
 getPaths depth lsys = removeBad $ (0.0, 0.0) : rest where

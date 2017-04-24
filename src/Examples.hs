@@ -1,6 +1,8 @@
 module Examples where
 import LSystem
+import Draw
 import Data.Monoid
+import Graphics.Gloss
 
 sierpinski :: LSystem
 sierpinski = LSystem "A-G-G" (r1 <> r2)
@@ -40,3 +42,12 @@ plant :: LSystem
 plant = LSystem "X" (r1 <> r2) (makeDefaultDrawRules (25 * pi / 180)) where
   r1 = makeRule 'X' "F-[[X]+X]+F[+FX]-X"
   r2 = makeRule 'F' "FF"
+
+window :: Display
+window = InWindow "Nice Window" (200, 200) (10, 10)
+
+background :: Color
+background = white
+
+main :: IO ()
+main = display window background (drawPicture 6 plant)
