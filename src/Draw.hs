@@ -15,8 +15,8 @@ rotateV r (x, y)
         ,  x * sin r + y * cos r)
 
 
-getPaths :: LSystem -> Int -> [[Vector]]
-getPaths lsys depth = (removeBad $ (0.0, 0.0) : getAll (expand lsys !! depth) [((0.0, 0.0), (0.0, -1.0))])
+getPaths :: Int -> LSystem -> [[Vector]]
+getPaths depth lsys = (removeBad $ (0.0, 0.0) : getAll (expand lsys !! depth) [((0.0, 0.0), (0.0, -1.0))])
 
 -- getNextLine :: [Symbol] -> [(Point, Vector)] -> ([Point], [Symbol])
 -- getNextLine [] _         = []
