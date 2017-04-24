@@ -43,4 +43,4 @@ drawPaths paths ctx = CVS.beginPath ctx >> (traverse_ drawPath paths) >> CVS.str
   drawPath p@(p1:_) = do
     let t v = map2Tuple (* 5.0) v
     uncurry (CVS.moveTo ctx) $ t p1
-    traverse_ (\poi -> uncurry (CVS.lineTo ctx) $ t poi) p
+    traverse_ (\p' -> uncurry (CVS.lineTo ctx) $ t p') p
