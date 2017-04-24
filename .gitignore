@@ -1,3 +1,5 @@
 $ cat .gitignore
 .stack*
 dist*
+*.js*
+.DS_Store
