@@ -4,11 +4,8 @@
 
 module Examples where
 import LSystem
-import Draw
 import Prelude hiding (lookup)
-import Test.QuickCheck
 import Data.Monoid
-import Graphics.Gloss
 --------------------------------------------------------------------------------
 -- | Examples
 

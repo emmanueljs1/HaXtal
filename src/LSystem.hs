@@ -109,7 +109,7 @@ instance Arbitrary LSystem where
   arbitrary = liftM3 LSystem arbStart arbRules arbDrawRules where
     variables = elements ['F', 'X', 'Y']
     randomList =
-      resize 6 . listOf $ elements ['F', 'X', 'Y', '+', '-']
+      resize 10 . listOf $ elements ['F', 'X', 'Y', '+', '-']
     combination = liftM2 (:) variables randomList
     arbStart = combination
     arbRules =

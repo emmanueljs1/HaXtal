@@ -32,7 +32,10 @@ executable haxtal-exe
   build-depends:       base
                      , gloss
                      , hlint
+                     , containers
+                     , QuickCheck
                      , HaXtal
+                     , containers
                      , QuickCheck
                      , transformers
                      , containers
