@@ -122,15 +122,15 @@ combineRules = (<>)
 
 instance Arbitrary LSystem where
   arbitrary = liftM3 LSystem arbStart arbRules arbDrawRules where
-    variables = elements ['F', 'X', 'Y']
-    randomList =
-      resize 10 . listOf $ elements ['F', 'X', 'Y', '+', '-']
-    combination = liftM2 (:) variables randomList
+    variables = ['F', 'X', 'Y']
+    combination = liftM2 (:) chooseVariable randomList where
+      chooseVariable = elements variables
+      randomList = resize 10 . listOf $ elements ['F', 'X', 'Y', '+', '-']
     arbStart = combination
     arbRules =
-      foldr (<>) empty .
-      zipWith (\var comb -> insert var comb empty) ['F', 'X', 'Y'] <$>
-      vectorOf 3 combination
+      foldr (<>) empty . zipWith linkRules variables <$> expansions where
+        linkRules var comb = insert var comb empty
+        expansions = vectorOf 3 combination
     arbDrawRules = insert 'Y' Forward . insert 'X' Forward <$> ddr where
       ddr = makeDefaultDrawRules <$> elements [0.0..360.0]
   shrink = undefined

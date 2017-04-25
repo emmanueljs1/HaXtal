@@ -25,7 +25,7 @@ drawingDragon :: Picture
 drawingDragon = drawPicture 15 dragon
 
 drawingHilbert :: Picture
-drawingHilbert = drawPicture 8 hilbert
+drawingHilbert = drawPicture 6 hilbert
 
 drawingGosper :: Picture
 drawingGosper = drawPicture 4 gosper
