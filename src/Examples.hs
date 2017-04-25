@@ -4,11 +4,8 @@
 
 module Examples where
 import LSystem
-import Draw
 import Prelude hiding (lookup)
-import Test.QuickCheck
 import Data.Monoid
-import Graphics.Gloss
 --------------------------------------------------------------------------------
 -- | Examples
 
@@ -56,17 +53,3 @@ plant :: LSystem
 plant = LSystem "X" (r1 <> r2) (makeDefaultDrawRules (25 * pi / 180)) where
   r1 = makeRule 'X' "F-[[X]+X]+F[+FX]-X"
   r2 = makeRule 'F' "FF"
-
---------------------------------------------------------------------------------
--- | Code for drawing curves
-
-window :: Display
-window = InWindow "Nice Window" (200, 200) (10, 10)
-
-background :: Color
-background = white
-
-main :: IO ()
-main = do
-  lsys <- generate arbitrary
-  display window background (drawPicture 6 lsys)
