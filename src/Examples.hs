@@ -57,9 +57,8 @@ plant = LSystem "X" (r1 <> r2) (makeDefaultDrawRules (25 * pi / 180)) where
 sunflower :: LSystem
 sunflower = LSystem "YX+X" sunflowerRules sunflowerDrawRules where
   r1 = makeRule 'F' "XFF"
-  r2 = makeRule 'X' "X"
-  r3 = makeRule 'Y' "X+-+Y+Y"
-  sunflowerRules = foldr combineRules baseRule [r1, r2, r3]
+  r2 = makeRule 'Y' "X+Y+Y"
+  sunflowerRules = foldr combineRules baseRule [r1, r2]
   dr1 = makeDrawRule 'X' Forward
   dr2 = makeDrawRule 'Y' Forward
   sunflowerDrawRules =
