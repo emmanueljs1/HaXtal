@@ -18,4 +18,5 @@ background = white
 main :: IO ()
 main = do
   lsys <- generate arbitrary
+  print lsys
   display window background (drawPicture 6 lsys)
