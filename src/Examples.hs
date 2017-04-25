@@ -1,6 +1,5 @@
--- | This file containns examples of common fractals represented as LSystems
--- | It also gives the option of drawing any of these using Haskell's Gloss
--- | library
+-- | This file containns examples of common fractals represented as LSystems,
+-- | with some randomly generated LSystems as well
 
 module Examples where
 import LSystem
@@ -53,3 +52,15 @@ plant :: LSystem
 plant = LSystem "X" (r1 <> r2) (makeDefaultDrawRules (25 * pi / 180)) where
   r1 = makeRule 'X' "F-[[X]+X]+F[+FX]-X"
   r2 = makeRule 'F' "FF"
+
+-- Sunflower Curve -- Randomly generated using arbitrary!
+sunflower :: LSystem
+sunflower = LSystem "YX+X" sunflowerRules sunflowerDrawRules where
+  r1 = makeRule 'F' "XFF"
+  r2 = makeRule 'X' "X"
+  r3 = makeRule 'Y' "X+-+Y+Y"
+  sunflowerRules = foldr combineRules baseRule [r1, r2, r3]
+  dr1 = makeDrawRule 'X' Forward
+  dr2 = makeDrawRule 'Y' Forward
+  sunflowerDrawRules =
+    foldr combineDrawRules baseDrawRule [dr1, dr2, makeDefaultDrawRules 185.0]

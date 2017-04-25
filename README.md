@@ -25,3 +25,5 @@ Things to do for haxtal
 L : SYS
 S : F|+[F->Y[S]]
 Y : [--F-F+FY]+
+
+start = "Y+FY-XX-" rules = [('F',"F++F"),('X',"F"),('Y',"F+")]
