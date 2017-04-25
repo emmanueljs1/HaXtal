@@ -5,9 +5,10 @@ module LSystem where
 
 import Prelude hiding (lookup)
 import Test.QuickCheck
-import Data.Map hiding (mapMaybe)
+import Data.Map hiding (mapMaybe, foldr, filter)
 import Data.Monoid
 import Data.Maybe
+import Data.List hiding (lookup, insert)
 import Data.Char
 import Text.Read
 import Control.Monad
@@ -45,7 +46,20 @@ type DrawRules = Map Char Symbol
 data LSystem = LSystem { start :: String,
                          rules :: Rules,
                          toDraw :: DrawRules }
-                       deriving (Show, Eq)
+                       deriving Eq
+
+instance Show LSystem where
+  show (LSystem s rs drs) =
+    intercalate "\n" [startLine, variables, angleLine, rulesText] where
+      startLine = "Start: " <> s
+      variables = "Variables: " <> intersperse ',' (keys rs)
+      angleLine = "Angle: " <> angle where
+        angle =
+          case lookup '-' drs of
+            Just (Turn f) -> show f
+            _ -> "90.0"
+      rulesText = intercalate "\n" ("Rules:" : rulesLines) where
+        rulesLines = (\(k, v) -> k : ": " <> v) <$> assocs rs
 
 -- Takes an LSystem and produces an infinite list of iterative expansions.
 -- The nth element of the result is the list of Symbols obtained from
@@ -115,15 +129,15 @@ instance Arbitrary LSystem where
     combination = liftM2 (:) variables randomList
     arbStart = combination
     arbRules =
-      Prelude.foldr (<>) empty .
+      foldr (<>) empty .
       zipWith (\var comb -> insert var comb empty) ['F', 'X', 'Y'] <$>
       vectorOf 3 combination
     arbDrawRules = insert 'Y' Forward . insert 'X' Forward <$> ddr where
       ddr = makeDefaultDrawRules <$> elements [0.0..360.0]
   shrink = undefined
 
--- Parses an LSystem from a set of user strings
--- parseLSystem start rules variables angle
+-- Gets an LSystem from a set of user strings
+-- getLSystem start rules variables angle
 -- _start_ is simply the starting string (all whitespaces are ignored)
 -- _rules_ is a 'text box' of rules of this form:
 --   X : XY+Y
@@ -135,11 +149,11 @@ instance Arbitrary LSystem where
 --   XY
 -- _angle_ is just the angle for the LSystem, if an angle is not successfully
 -- read, the default value it is given is 90
-parseLSystem :: String -> String -> String -> String -> LSystem
-parseLSystem st rules variables angle = LSystem st' recRules drawRules where
-  st' = Prelude.filter (not . isSpace) st
+getLSystem :: String -> String -> String -> String -> LSystem
+getLSystem st rs variables angle = LSystem st' recRules drawRules where
+  st' = filter (not . isSpace) st
   recRules = parseLines empty allLines where
-    allLines = Prelude.filter (not . isSpace) <$> lines rules
+    allLines = filter (not . isSpace) <$> lines rs
     parseLines m [] = m
     parseLines m (s : ss) =
       case s of
@@ -152,4 +166,4 @@ parseLSystem st rules variables angle = LSystem st' recRules drawRules where
       case readMaybe angle of
         Just f -> makeDefaultDrawRules f
         Nothing -> makeDefaultDrawRules 90.0
-    variables' = Prelude.filter (\c -> not (isSpace c) && c /= ',') variables
+    variables' = filter (\c -> not (isSpace c) && c /= ',') variables
