@@ -2,12 +2,12 @@ name:                HaXtal
 version:             0.1.0.0
 -- synopsis:
 -- description:
-homepage:            https://github.com/githubuser/haxal#readme
+homepage:            https://github.com/cis552/project_dbuckman_emsu_kyro-proj/
 license:             BSD3
 license-file:        LICENSE
-author:              Author name here
+author:              David Buckman, Emmanuel Suarez, Kyle Rosenbluth
 maintainer:          example@example.com
-copyright:           2017 Author name here
+copyright:           2017 David Buckman, Emmanuel Suarez, Kyle Rosenbluth
 category:            Web
 build-type:          Simple
 extra-source-files:  README.md
@@ -25,7 +25,7 @@ library
   default-language:    Haskell2010
 
 executable haxtal-exe
-  hs-source-dirs:      src
+  hs-source-dirs:      app
   main-is:             Main.hs
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
@@ -34,8 +34,6 @@ executable haxtal-exe
                      , containers
                      , QuickCheck
                      , HaXtal
-                     , containers
-                     , QuickCheck
                      , transformers
   default-language:    Haskell2010
 
@@ -50,4 +48,4 @@ test-suite haxtal-test
 
 source-repository head
   type:     git
-  location: https://github.com/githubuser/haxal
+  location: https://github.com/cis552/project_dbuckman_emsu_kyro-proj/

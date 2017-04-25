@@ -8,6 +8,8 @@ import Test.QuickCheck
 import Data.Map hiding (mapMaybe)
 import Data.Monoid
 import Data.Maybe
+import Data.Char
+import Text.Read
 import Control.Monad
 
 -- | A symbol represents an action to be performed
@@ -119,5 +121,34 @@ instance Arbitrary LSystem where
       ddr = makeDefaultDrawRules <$> elements [0.0..360.0]
   shrink = undefined
 
-prop_canBeDrawn :: LSystem -> Bool
-prop_canBeDrawn lsys = undefined
+-- Parses an LSystem from a set of user strings
+-- parseLSystem start rules variables angle
+-- _start_ is simply the starting string (all whitespaces are ignored)
+-- _rules_ is a 'text box' of rules of this form:
+--   X : XY+Y
+--   Y : FYF
+-- _variables_ are just the variables separated by
+-- _commas_ and/or spaces and/or nothing
+--   X, Y
+--   X Y
+--   XY
+-- _angle_ is just the angle for the LSystem, if an angle is not successfully
+-- read, the default value it is given is 90
+parseLSystem :: String -> String -> String -> String -> LSystem
+parseLSystem st rules variables angle = LSystem st' recRules drawRules where
+  st' = Prelude.filter (not . isSpace) st
+  recRules = parseLines empty allLines where
+    allLines = Prelude.filter (not . isSpace) <$> lines rules
+    parseLines m [] = m
+    parseLines m (s : ss) =
+      case s of
+        (c : ':' : cs) -> parseLines (insert c cs m) ss
+        _ -> parseLines m ss
+  drawRules = getVariables variables' <> defaultDrawRules where
+    getVariables [] = empty
+    getVariables (v : vs) = insert v Forward (getVariables vs)
+    defaultDrawRules =
+      case readMaybe angle of
+        Just f -> makeDefaultDrawRules f
+        Nothing -> makeDefaultDrawRules 90.0
+    variables' = Prelude.filter (\c -> not (isSpace c) && c /= ',') variables
