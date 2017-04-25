@@ -57,16 +57,19 @@ plant = LSystem "X" (r1 <> r2) (makeDefaultDrawRules (25 * pi / 180)) where
   r1 = makeRule 'X' "F-[[X]+X]+F[+FX]-X"
   r2 = makeRule 'F' "FF"
 
+-- Arbitrary Curve
+arbCurve :: IO LSystem
+arbCurve = generate arbitrary
 --------------------------------------------------------------------------------
 -- | Code for drawing curves
 
-window :: Display
-window = InWindow "Nice Window" (200, 200) (10, 10)
+-- window :: Display
+-- window = InWindow "Nice Window" (200, 200) (10, 10)
 
-background :: Color
-background = white
+-- background :: Color
+-- background = white
 
-main :: IO ()
-main = do
-  lsys <- generate arbitrary
-  display window background (drawPicture 6 lsys)
+-- main :: IO ()
+-- main = do
+--   lsys <- generate arbitrary
+--   display window background (drawPicture 6 lsys)

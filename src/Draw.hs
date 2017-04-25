@@ -3,7 +3,6 @@ module Draw where
 import LSystem
 import Control.Monad.Trans.State.Lazy
 import Graphics.Gloss hiding (Vector)
-import Debug.Trace
 
 type Vector = (Float, Float)
 
@@ -45,9 +44,8 @@ mapTuple f (x, y) = (f x, f y)
 getNextLine :: [Vector] -> ([Vector], [Vector])
 getNextLine []            = ([], [])
 getNextLine (p : ps)
-              | fst p < -5000 =
-                trace (show $ length ps) ([], mapTuple (10000 +) p : ps)
-              | otherwise = (p : ln, remPts)
+              | fst p < -5000 = ([], mapTuple (10000 +) p : ps)
+              | otherwise     = (p : ln, remPts)
               where
                 (ln, remPts) = getNextLine ps
 
