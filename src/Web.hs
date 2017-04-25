@@ -22,6 +22,8 @@ main = mainWidget $ do
   el "h1" $ text "Welcome to HaXtal!"
   el "h2" $ text "Please select a fractal to display:"
   dd <- dropdown 1 ddOpts def
+  ti <- textArea def
+  b <- button "Generate"
   el "br" blank
   (e, _) <- element "canvas" def blank
   let canvas = DOM.HTMLCanvasElement $
@@ -30,25 +32,28 @@ main = mainWidget $ do
   let ctx = DOM.CanvasRenderingContext2D ctx'
   CVS.setWidth canvas $ round canvasWidth
   CVS.setHeight canvas $ round canvasHeight
+  -- Put the origin at the center of the canvas
+  CVS.translate ctx (canvasWidth / 2.0) (canvasHeight / 2.0)
   -- Draw the default fractal from the starting selection of the dropdown
   drawPaths ctx (getPaths defaultLevels $ lsysFromDD 1)
   -- Attach the redrawing of fractals to the changing of the dropdown
   performEvent_ $ liftIO . (drawPaths ctx) . getPaths defaultLevels . lsysFromDD
-               <$> (updated $ value dd)
-  return ()
+               <$> tagPromptlyDyn (value dd) b
 
--- Takes a list of a list of points an
+-- Draws a list of paths to the context
 drawPaths ::(MonadIO m) => DOM.CanvasRenderingContext2D -> [[Vector]] -> m ()
 drawPaths ctx paths = do
-  CVS.clearRect ctx 0 0 canvasWidth canvasHeight
+  CVS.clearRect ctx (-canvasWidth / 2.0) (-canvasHeight / 2.0)
+                    canvasWidth canvasHeight
   CVS.save ctx
   CVS.beginPath ctx
+  -- Draw every path in the lsystem
   traverse_ drawPath paths
   CVS.stroke ctx
   CVS.restore ctx
   where
     drawPath p@(p1:_) = do
-      let tr = mapTuple (\e -> e * drawingScale + canvasWidth / 2.0)
+      let tr = mapTuple (\e -> e * drawingScale)
       uncurry (CVS.moveTo ctx) $ tr p1
       traverse_ (uncurry (CVS.lineTo ctx) . tr) p
 

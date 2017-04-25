@@ -13,7 +13,7 @@ import Data.Char
 import Text.Read
 import Control.Monad
 
--- a symbol represents an action to be performed
+-- | A symbol represents an action to be performed
 data Symbol = Forward     -- draw forward
             | Turn Float  -- turn the current angle
             | PushState   -- save the current position
@@ -21,22 +21,21 @@ data Symbol = Forward     -- draw forward
             | BOOP        -- TODO: what is BOOP
             deriving (Eq, Ord, Show)
 
-{- in our framework, a _variable_ or a _constant_ can have a
--- symbol associated with it
+-- | In our framework, a _variable_ or a _constant_ can have a
+-- symbol associated with it.
+-- The difference between a variable and a constant is that a variable
+-- has a rule that defines how it is replaced, while a constant does not
 
--- the difference between a variable and a constant is that a variable
--- has a rule that defines how it is replaced, while a constant does not -}
-
--- rules define the way a variable can be replaced with a combination of
--- variables and constants
--- we represent them as a map from characters to strings
--- for example X -> XX could be represented in the map as ('X', "XX")
+-- | Rules define the way a variable can be replaced with a combination of
+-- variables and constants.
+-- We represent them as a map from characters to strings.
+-- For example X -> XX could be represented in the map as ('X', "XX")
 type Rules = Map Char String
 
--- draw rules map variables and constants to symbols
+-- | Draw rules map variables and constants to symbols
 type DrawRules = Map Char Symbol
 
--- finally, an LSystem is a start state, a set of rules, and a set of draw rules
+-- | Finally, an LSystem is a start state, a set of rules, and a set of draw rules
 -- an example LSystem could be:
 --   variables: F
 --   constants: +
