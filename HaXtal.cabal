@@ -32,6 +32,8 @@ executable haxtal-exe
                      , gloss
                      , hlint
                      , HaXtal
+                     , containers
+                     , QuickCheck
                      , transformers
   default-language:    Haskell2010
 
