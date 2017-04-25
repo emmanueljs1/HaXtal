@@ -2,7 +2,6 @@ module Draw where
 
 import LSystem
 import Control.Monad.Trans.State.Lazy
-import Graphics.Gloss hiding (Vector)
 import Debug.Trace
 
 type Vector = (Float, Float)
@@ -11,15 +10,11 @@ type Vector = (Float, Float)
 (>+) :: Vector -> Vector -> Vector
 (a1, a2) >+ (b1, b2) = (a1 + b1, a2 + b2)
 
--- rotates a vector by a specified angle
+-- rotates a vector by a specified angle (code borrowed from Gloss package)
 rotateV :: Float -> Vector -> Vector
 rotateV r (x, y)
  =      (  x * cos r - y * sin r
         ,  x * sin r + y * cos r)
-
--- draws a Picture from an LSystem
-drawPicture :: Int -> LSystem -> Picture
-drawPicture depth lsys = pictures (line <$> getPaths depth lsys)
 
 -- Gets vector paths that represent visualization of an LSystem
 getPaths :: Int -> LSystem -> [[Vector]]
