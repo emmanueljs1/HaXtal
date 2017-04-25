@@ -5,6 +5,8 @@
 module Examples where
 import LSystem
 import Draw
+import Prelude hiding (lookup)
+import Test.QuickCheck
 import Data.Monoid
 import Graphics.Gloss
 --------------------------------------------------------------------------------
@@ -65,4 +67,6 @@ background :: Color
 background = white
 
 main :: IO ()
-main = display window background (drawPicture 6 plant)
+main = do
+  lsys <- generate arbitrary
+  display window background (drawPicture 6 lsys)

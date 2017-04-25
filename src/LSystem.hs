@@ -40,7 +40,10 @@ type DrawRules = Map Char Symbol
 --   start: F
 --   rules: F -> F + F
 --   draw rules: F -> Forward; + -> Turn 90
-data LSystem = LSystem {start :: String, rules :: Rules, toDraw :: DrawRules}
+data LSystem = LSystem { start :: String,
+                         rules :: Rules,
+                         toDraw :: DrawRules }
+                       deriving (Show, Eq)
 
 -- Takes an LSystem and produces an infinite list of iterative expansions.
 -- The nth element of the result is the list of Symbols obtained from
@@ -103,5 +106,19 @@ combineRules :: Rules -> Rules -> Rules
 combineRules = (<>)
 
 instance Arbitrary LSystem where
-  arbitrary = undefined
+  arbitrary = liftM3 LSystem arbStart arbRules arbDrawRules where
+    variables = elements ['F', 'X', 'Y']
+    randomList =
+      resize 6 . listOf $ elements ['F', 'X', 'Y', '+', '-']
+    combination = liftM2 (:) variables randomList
+    arbStart = combination
+    arbRules =
+      Prelude.foldr (<>) empty .
+      zipWith (\var comb -> insert var comb empty) ['F', 'X', 'Y'] <$>
+      vectorOf 3 combination
+    arbDrawRules = insert 'Y' Forward . insert 'X' Forward <$> ddr where
+      ddr = makeDefaultDrawRules <$> elements [0.0..360.0]
   shrink = undefined
+
+prop_canBeDrawn :: LSystem -> Bool
+prop_canBeDrawn lsys = undefined
