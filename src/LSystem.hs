@@ -148,8 +148,8 @@ instance Arbitrary LSystem where
 --   XY
 -- _angle_ is just the angle for the LSystem, if an angle is not successfully
 -- read, the default value it is given is 90
-getLSystem :: String -> String -> String -> String -> LSystem
-getLSystem st rs variables angle = LSystem st' recRules drawRules where
+getLSystem :: [String] -> LSystem
+getLSystem (st : rs : variables : angle : []) = LSystem st' recRules drawRules where
   st' = filter (not . isSpace) st
   recRules = parseLines empty allLines where
     allLines = filter (not . isSpace) <$> lines rs
@@ -166,3 +166,4 @@ getLSystem st rs variables angle = LSystem st' recRules drawRules where
         Just f -> makeDefaultDrawRules f
         Nothing -> makeDefaultDrawRules 90.0
     variables' = filter (\c -> not (isSpace c) && c /= ',') variables
+getLSystem _ = LSystem "" baseRule baseDrawRule

@@ -22,7 +22,10 @@ main = mainWidget $ do
   el "h1" $ text "Welcome to HaXtal!"
   el "h2" $ text "Please select a fractal to display:"
   dd <- dropdown 1 ddOpts def
-  ti <- textArea def
+  startText <- textInput def
+  rulesText <- textArea def
+  varsText <- textInput def
+  angleText <- textInput def
   b <- button "Generate"
   el "br" blank
   (e, _) <- element "canvas" def blank
@@ -37,8 +40,13 @@ main = mainWidget $ do
   -- Draw the default fractal from the starting selection of the dropdown
   drawPaths ctx (getPaths defaultLevels $ lsysFromDD 1)
   -- Attach the redrawing of fractals to the changing of the dropdown
-  performEvent_ $ liftIO . (drawPaths ctx) . getPaths defaultLevels . lsysFromDD
-               <$> tagPromptlyDyn (value dd) b
+  performEvent_ $ liftIO . (drawPaths ctx) . getPaths defaultLevels . getLSystem
+               <$> tagPromptlyDyn (distributeListOverDynPure
+                                  [T.unpack <$> value startText,
+                                   T.unpack <$> value rulesText,
+                                   T.unpack <$> value varsText,
+                                   T.unpack <$> value angleText]
+                                  ) b
 
 -- Draws a list of paths to the context
 drawPaths ::(MonadIO m) => DOM.CanvasRenderingContext2D -> [[Vector]] -> m ()
@@ -68,7 +76,7 @@ ddOpts = (constDyn $ (1 =: "Gosper")
                   <> (4 =: "Dragon")
                   <> (5 =: "Sierpinski Arrowhead")
                   <> (6 =: "Plant")
-                  <> (7 =: "Random"))
+                  <> (7 =: "Sunflower"))
 lsysFromDD :: Integer -> LSystem
 lsysFromDD 1 = gosper
 lsysFromDD 2 = hilbert
@@ -76,5 +84,6 @@ lsysFromDD 3 = sierpinski
 lsysFromDD 4 = dragon
 lsysFromDD 5 = sierpinskiArrowhead
 lsysFromDD 6 = plant
+lsysFromDD 7 = sunflower
 lsysFromDD _ = plant
 --------------------------------------------------------------------------------
