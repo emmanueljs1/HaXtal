@@ -58,7 +58,7 @@ instance Show LSystem where
             Just (Turn f) -> show f
             _ -> "90.0"
       rulesText = intercalate "\n" ("Rules:" : rulesLines) where
-        rulesLines = (\(k, v) -> k : ": " <> v) <$> assocs rs
+        rulesLines = (\(k, v) -> [' ', k] <> ": " <> v) <$> assocs rs
 
 -- Takes an LSystem and produces an infinite list of iterative expansions.
 -- The nth element of the result is the list of Symbols obtained from
@@ -132,7 +132,7 @@ instance Arbitrary LSystem where
         linkRules var comb = insert var comb empty
         expansions = vectorOf 3 combination
     arbDrawRules = insert 'Y' Forward . insert 'X' Forward <$> ddr where
-      ddr = makeDefaultDrawRules <$> elements [0.0..360.0]
+      ddr = makeDefaultDrawRules <$> elements [1.0..360.0]
   shrink = undefined
 
 -- Gets an LSystem from a set of user strings
