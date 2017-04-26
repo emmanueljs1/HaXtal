@@ -35,8 +35,8 @@ type Rules = Map Char String
 -- | Draw rules map variables and constants to symbols
 type DrawRules = Map Char Symbol
 
--- | Finally, an LSystem is a start state, a set of rules, and a set of draw rules
--- an example LSystem could be:
+-- | Finally, an LSystem is a start state, a set of rules, and a set
+-- of draw rules; an example LSystem could be:
 --   variables: F
 --   constants: +
 --   start: F
@@ -124,8 +124,8 @@ combineRules = (<>)
 -- takes a list of keys and a list of values and returns
 -- a map that links each key in the first list to its
 -- corresponding value in the second list
-zipWithMap :: Ord k => [k] -> [v] -> Map k v
-zipWithMap = foldr combine (const empty) where
+zipMap :: Ord k => [k] -> [v] -> Map k v
+zipMap = foldr combine (const empty) where
   combine x acc (h : t) = insert x h (acc t)
   combine _ _ [] = empty
 
@@ -141,9 +141,9 @@ instance Arbitrary LSystem where
     arbStart = combination
     arbRules = do
       rulesToMap <- vectorOf 3 $ resize 5 combination
-      return $ zipWithMap variables rulesToMap
+      return $ zipMap variables rulesToMap
     arbDrawRules = do
-      f <- elements [1.0..360.0]
+      f <- elements [1.0..359.0]
       return $ insert 'Y' Forward $ insert 'X' Forward (makeDefaultDrawRules f)
   shrink = undefined
 
