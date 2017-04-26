@@ -69,7 +69,7 @@ main = mainWidget $ do
                 ] ) b
 
 -- Draws a list of paths to the context
-drawPaths ::(MonadIO m) => DOM.CanvasRenderingContext2D -> [[Vector]] -> m ()
+drawPaths ::(MonadIO m) => DOM.CanvasRenderingContext2D -> [[Point]] -> m ()
 drawPaths ctx paths = do
   CVS.clearRect ctx (-canvasWidth / 2.0) (-canvasHeight / 2.0)
                     canvasWidth canvasHeight
@@ -81,9 +81,9 @@ drawPaths ctx paths = do
   CVS.restore ctx
   where
     drawPath p@(p1:_) = do
-      let tr = mapTuple (* drawingScale)
-      uncurry (CVS.moveTo ctx) $ tr p1
-      traverse_ (uncurry (CVS.lineTo ctx) . tr) p
+      let tr (Point p) = Point $ mapTuple (* drawingScale) p
+      uncurry (CVS.moveTo ctx) $ getP . tr $ p1
+      traverse_ (uncurry (CVS.lineTo ctx) . getP . tr) p
 
 -------------- Helpers and Constants -------------------------------------------
   
