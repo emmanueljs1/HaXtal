@@ -32,6 +32,12 @@ dragon = LSystem "FX" (r1 <> r2) (makeDefaultDrawRules (pi / 2)) where
   r1 = makeRule 'X' "X+YF+"
   r2 = makeRule 'Y' "-FX-Y"
 
+-- Dragon Fractal with angle growing
+dragon2 :: LSystem
+dragon2 = LSystem "FX" (r1 <> r2) (makeDefaultDrawRules (pi / 2) <> makeAdjAngleRule (pi / (2^16))) where
+  r1 = makeRule 'X' "X<+YF<+"
+  r2 = makeRule 'Y' "-FX>-Y"
+
 -- Hilbert Curve
 hilbert :: LSystem
 hilbert = LSystem "X" (r1 <> r2) (makeDefaultDrawRules (pi / 2)) where

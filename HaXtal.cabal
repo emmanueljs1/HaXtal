@@ -35,6 +35,7 @@ executable haxtal-exe
                      , QuickCheck
                      , HaXtal
                      , transformers
+                     , containers
   default-language:    Haskell2010
 
 test-suite haxtal-test

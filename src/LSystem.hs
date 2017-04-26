@@ -15,9 +15,10 @@ import Control.Monad
 
 -- | A symbol represents an action to be performed
 data Symbol = Forward     -- draw forward
-            | Turn Float  -- turn the current angle
-            | PushState   -- save the current position
-            | PopState    -- access the most recently pushed position
+            | Turn Float  -- turn the given angle
+            | AdjAngle Float    -- change global angle adjustment
+            | PushState   -- save the current position and angle
+            | PopState    -- access the most recently pushed position and angle
             | BOOP        -- TODO: what is BOOP
             deriving (Eq, Ord, Show)
 
@@ -112,12 +113,25 @@ makePlusDrawRule a = makeDrawRule '+' (Turn a)
 makeMinusDrawRule :: Float -> DrawRules
 makeMinusDrawRule a = makeDrawRule '-' (Turn a)
 
+-- increase angle draw rule, relates '<' to changing global angle adjustment by an angle a
+makeIncAngleRule :: Float -> DrawRules
+makeIncAngleRule a = makeDrawRule '<' (AdjAngle a)
+
+-- decrease angle draw rule, relates '>' to changing global angle adjustment by an angle a
+makeDecAngleRule :: Float -> DrawRules
+makeDecAngleRule a = makeDrawRule '>' (AdjAngle a)
+
+-- angle adjustment draw rules
+makeAdjAngleRule :: Float -> DrawRules
+makeAdjAngleRule a = makeIncAngleRule (-a) <> makeDecAngleRule a
+
 -- default draw rules are the most common rules, these relate
 -- 'F' to Forward, '[' to push state, ']' to pop state, '+' and '-' to turning
 -- by complementary angles
 makeDefaultDrawRules :: Float -> DrawRules
 makeDefaultDrawRules a = fDrawRule <> lBracketDrawRule <> rBracketDrawRule <>
-                          makePlusDrawRule (2 * pi - a) <> makeMinusDrawRule a
+                           makePlusDrawRule (-a) <> makeMinusDrawRule a
+
 
 -- base rule (no rules)
 baseRule :: Rules
