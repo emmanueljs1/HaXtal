@@ -22,10 +22,20 @@ main = mainWidget $ do
   el "h1" $ text "Welcome to HaXtal!"
   el "h2" $ text "Please select a fractal to display:"
   dd <- dropdown 1 ddOpts def
-  startText <- textInput def
-  rulesText <- textArea def
-  varsText <- textInput def
-  angleText <- textInput def
+  
+  let tddLsys = tagPromptlyDyn (lsysFromDD <$> (value dd)) (_dropdown_change dd)
+      rulesEv = rulesString <$> tddLsys
+      rulesConfig = def {_textAreaConfig_setValue = T.pack <$> rulesEv}
+      varsEv = varsString <$> tddLsys
+      varsConfig = def {_textInputConfig_setValue = T.pack <$> varsEv}
+      angleEv = angleString <$> tddLsys
+      angleConfig = def {_textInputConfig_setValue = T.pack <$> angleEv}
+      startEv = startString <$> tddLsys
+      startConfig = def {_textInputConfig_setValue = T.pack <$> startEv}
+  startText <- textInput startConfig
+  rulesText <- textArea rulesConfig
+  varsText <- textInput varsConfig
+  angleText <- textInput angleConfig
   b <- button "Generate"
   el "br" blank
   (e, _) <- element "canvas" def blank
