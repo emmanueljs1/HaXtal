@@ -39,14 +39,21 @@ main = mainWidget $ do
   CVS.translate ctx (canvasWidth / 2.0) (canvasHeight / 2.0)
   -- Draw the default fractal from the starting selection of the dropdown
   drawPaths ctx (getPaths defaultLevels $ lsysFromDD 1)
-  -- Attach the redrawing of fractals to the changing of the dropdown
+
+  -- Attach the redrawing of fractals to the 'generate' button and
+  -- pass values of the fields to getLSystem.
+  --
+  -- Breakdown (for when I get confused)
+  -- First, we combine all of the text inputs into one dynamic, then we
+  -- map the value of the new dynamic to the action of the 'generate'
+  -- button being pressed. Then we create and draw the lsystem, lift
+  -- to an IO instance and perform the event.
+  let u = T.unpack
   performEvent_ $ liftIO . drawPaths ctx . getPaths defaultLevels
                 . uncurryList getLSystem
                <$> tagPromptlyDyn (distributeListOverDynPure
-                                  [T.unpack <$> value startText,
-                                   T.unpack <$> value rulesText,
-                                   T.unpack <$> value varsText,
-                                   T.unpack <$> value angleText]
+                                  [u <$> value startText, u <$> value rulesText,
+                                   u <$> value varsText,  u <$> value angleText]
                                   ) b
 
 -- Draws a list of paths to the context
@@ -91,7 +98,7 @@ lsysFromDD _ = plant
 
 uncurryList :: (String -> String -> String -> String -> a) -> [String] -> a
 uncurryList f (s1 : s2 : s3 : s4 : t) = f s1 s2 s3 s4
-uncurryList _ [] = error "uncurryList: not enough elements in list"
+uncurryList _ _ = error "uncurryList: not enough elements in list"
 
 
 --------------------------------------------------------------------------------

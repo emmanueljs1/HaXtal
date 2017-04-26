@@ -48,17 +48,26 @@ data LSystem = LSystem { start :: String,
                        deriving Eq
 
 instance Show LSystem where
-  show (LSystem s rs drs) =
+  show l =
     intercalate "\n" [startLine, variables, angleLine, rulesText] where
-      startLine = "Start: " <> s
-      variables = "Variables: " <> intersperse ',' (keys rs)
-      angleLine = "Angle: " <> angle where
-        angle =
-          case lookup '-' drs of
-            Just (Turn f) -> show f
-            _ -> "90.0"
-      rulesText = intercalate "\n" ("Rules:" : rulesLines) where
-        rulesLines = (\(k, v) -> [' ', k] <> ": " <> v) <$> assocs rs
+      startLine = "Start: " <> startString l
+      variables = "Variables: " <> varsString l
+      angleLine = "Angle: " <> angleString l
+      rulesText = "Rules:\n" <> rulesString l
+
+startString :: LSystem -> String
+startString = start
+
+rulesString :: LSystem -> String
+rulesString (LSystem _ rs _) = intercalate "\n" $
+                               (\(k, v) -> [k] <> ": " <> v) <$> assocs rs
+angleString :: LSystem -> String
+angleString (LSystem _ _ drs) = case lookup '-' drs of
+                                  Just (Turn f) -> show f
+                                  _ -> "90.0"
+
+varsString :: LSystem -> String
+varsString (LSystem _ rs _) = intersperse ',' (keys rs)
 
 -- Takes an LSystem and produces an infinite list of iterative expansions.
 -- The nth element of the result is the list of Symbols obtained from
