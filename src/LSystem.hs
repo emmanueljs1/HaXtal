@@ -50,21 +50,23 @@ data LSystem = LSystem { start :: String,
 instance Show LSystem where
   show l =
     intercalate "\n" [startLine, variables, angleLine, rulesText] where
-      startLine = "Start: " <> startString l
+      startLine = "Start: "     <> startString l
       variables = "Variables: " <> varsString l
-      angleLine = "Angle: " <> angleString l
-      rulesText = "Rules:\n" <> rulesString l
+      angleLine = "Angle: "     <> angleString l
+      rulesText = "Rules:\n"    <> rulesString l
 
 startString :: LSystem -> String
 startString = start
 
 rulesString :: LSystem -> String
-rulesString (LSystem _ rs _) = intercalate "\n" $
-                               (\(k, v) -> [k] <> ": " <> v) <$> assocs rs
+rulesString (LSystem _ rs _) =
+  intercalate "\n" $ (\(k, v) -> [k] <> ": " <> v) <$> assocs rs
+
 angleString :: LSystem -> String
-angleString (LSystem _ _ drs) = case lookup '-' drs of
-                                  Just (Turn f) -> show f
-                                  _ -> "90.0"
+angleString (LSystem _ _ drs) =
+  case lookup '-' drs of
+    Just (Turn f) -> show f
+    _ -> "90.0"
 
 varsString :: LSystem -> String
 varsString (LSystem _ rs _) = intersperse ',' (keys rs)
