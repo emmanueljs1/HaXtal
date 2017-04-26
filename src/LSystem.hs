@@ -51,7 +51,7 @@ instance Show LSystem where
   show l =
     intercalate "\n" [startLine, variables, angleLine, rulesText] where
       startLine = "Start: "     <> startString l
-      variables = "Variables: " <> varsString l
+      variables = "Variables: " <> varsString  l
       angleLine = "Angle: "     <> angleString l
       rulesText = "Rules:\n"    <> rulesString l
 
