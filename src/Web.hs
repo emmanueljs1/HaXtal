@@ -40,7 +40,8 @@ main = mainWidget $ do
   -- Draw the default fractal from the starting selection of the dropdown
   drawPaths ctx (getPaths defaultLevels $ lsysFromDD 1)
   -- Attach the redrawing of fractals to the changing of the dropdown
-  performEvent_ $ liftIO . (drawPaths ctx) . getPaths defaultLevels . getLSystem
+  performEvent_ $ liftIO . drawPaths ctx . getPaths defaultLevels
+                . uncurryList getLSystem
                <$> tagPromptlyDyn (distributeListOverDynPure
                                   [T.unpack <$> value startText,
                                    T.unpack <$> value rulesText,
@@ -61,7 +62,7 @@ drawPaths ctx paths = do
   CVS.restore ctx
   where
     drawPath p@(p1:_) = do
-      let tr = mapTuple (\e -> e * drawingScale)
+      let tr = mapTuple (* drawingScale)
       uncurry (CVS.moveTo ctx) $ tr p1
       traverse_ (uncurry (CVS.lineTo ctx) . tr) p
 
@@ -70,13 +71,14 @@ canvasWidth = 1000.0
 canvasHeight = 1000.0
 drawingScale = 10.0
 defaultLevels = 4
-ddOpts = (constDyn $ (1 =: "Gosper")
+ddOpts = constDyn $ (1 =: "Gosper")
                   <> (2 =: "Hilbert")
                   <> (3 =: "Sierpinski")
                   <> (4 =: "Dragon")
                   <> (5 =: "Sierpinski Arrowhead")
                   <> (6 =: "Plant")
-                  <> (7 =: "Sunflower"))
+                  <> (7 =: "Sunflower")
+
 lsysFromDD :: Integer -> LSystem
 lsysFromDD 1 = gosper
 lsysFromDD 2 = hilbert
@@ -86,4 +88,10 @@ lsysFromDD 5 = sierpinskiArrowhead
 lsysFromDD 6 = plant
 lsysFromDD 7 = sunflower
 lsysFromDD _ = plant
+
+uncurryList :: (String -> String -> String -> String -> a) -> [String] -> a
+uncurryList f (s1 : s2 : s3 : s4 : t) = f s1 s2 s3 s4
+uncurryList _ [] = error "uncurryList: not enough elements in list"
+
+
 --------------------------------------------------------------------------------

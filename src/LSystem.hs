@@ -120,7 +120,7 @@ makeRule = singleton
 combineRules :: Rules -> Rules -> Rules
 combineRules = (<>)
 
--- zipWithMap keys values
+-- zipMap keys values
 -- takes a list of keys and a list of values and returns
 -- a map that links each key in the first list to its
 -- corresponding value in the second list
@@ -160,8 +160,8 @@ instance Arbitrary LSystem where
 --   XY
 -- _angle_ is just the angle for the LSystem, if an angle is not successfully
 -- read, the default value it is given is 90
-getLSystem :: [String] -> LSystem
-getLSystem (st : rs : variables : angle : []) = LSystem st' recRules drawRules where
+getLSystem :: String -> String -> String -> String -> LSystem
+getLSystem st rs variables angle = LSystem st' recRules drawRules where
   st' = filter (not . isSpace) st
   recRules = parseLines empty allLines where
     allLines = filter (not . isSpace) <$> lines rs
@@ -178,4 +178,4 @@ getLSystem (st : rs : variables : angle : []) = LSystem st' recRules drawRules w
         Just f -> makeDefaultDrawRules f
         Nothing -> makeDefaultDrawRules 90.0
     variables' = filter (\c -> not (isSpace c) && c /= ',') variables
-getLSystem _ = LSystem "" baseRule baseDrawRule
+--getLSystem _ = LSystem "" baseRule baseDrawRule
