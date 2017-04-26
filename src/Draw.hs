@@ -2,7 +2,6 @@ module Draw where
 
 import LSystem
 import Control.Monad.Trans.State.Lazy
-import Graphics.Gloss
 import Data.Monoid hiding (getAll)
 -- import Numeric.Limits
 
@@ -25,21 +24,33 @@ instance Monoid BoundingBox where
   mappend b1 b2 = BoundingBox (min (minX b1) (minX b2)) (min (minY b1) (minY b2))
                               (max (maxX b1) (maxX b2)) (max (maxY b1) (maxY b2))
 
-getX :: Point -> Float
-getX = fst
 
-getY :: Point -> Float
-getY = snd
+class Vector a where
+  makeV :: (Float, Float) -> a
+  getX :: a -> Float
+  getY :: a -> Float
+  (>+) :: Vector b => a -> b -> a
+  v1 >+ v2 =  makeV (getX v1 + getX v2, getY v1 + getY v2)
+  rotateV :: Float -> a -> a
+  rotateV r v = makeV (x * cos r - y * sin r, x * sin r + y * cos r)
+                where
+                  x = getX v
+                  y = getY v
 
--- adds two vectors
-(>+) :: Vector -> Vector -> Vector
-(a1, a2) >+ (b1, b2) = (a1 + b1, a2 + b2)
+newtype Direction = Direction (Float, Float) deriving (Show, Eq)
 
--- rotates a vector by a specified angle (code borrowed from Gloss package)
-rotateV :: Float -> Vector -> Vector
-rotateV r (x, y)
- =      (  x * cos r - y * sin r
-        ,  x * sin r + y * cos r)
+instance Vector Direction where
+  makeV = Direction
+  getX (Direction d) = fst d
+  getY (Direction d) = snd d
+
+newtype Point = Point (Float, Float) deriving (Show, Eq)
+
+instance Vector Point where
+  makeV = Point
+  getX (Point p) = fst p
+  getY (Point p) = snd p
+
 
 getDrawBounds :: [Point] -> BoundingBox
 getDrawBounds = foldr ((<>) . makeBoundingBox) mempty
@@ -47,12 +58,12 @@ getDrawBounds = foldr ((<>) . makeBoundingBox) mempty
 -- Gets vector paths that represent visualization of an LSystem
 getPaths :: Int -> LSystem -> [[Point]]
 getPaths depth lsys = removeBad $ start : rest where
-  start = (0.0, 0.0)
+  start = Point (0.0, 0.0)
   rest = getAll (expand lsys !! depth) initVector
-  initVector = [((0.0, 0.0), (0.0, -1.0), 0)]
+  initVector = [(Point (0.0, 0.0), Direction (0.0, -1.0), 0)]
 
 --
-getAll :: [Symbol] -> [(Point, Vector, Float)] -> [Point]
+getAll :: [Symbol] -> [(Point, Direction, Float)] -> [Point]
 getAll [] _        = []
 getAll (s : ss) st = val : getAll ss nst
                      where
@@ -68,7 +79,7 @@ mapTuple f (x, y) = (f x, f y)
 getNextLine :: [Point] -> ([Point], [Point])
 getNextLine []            = ([], [])
 getNextLine (p : ps)
-              | fst p < -5000 = ([], mapTuple (10000 +) p : ps)
+              | getX p < -5000 = ([], p >+ Point (10000, 10000) : ps)
               | otherwise     = (p : ln, remPts)
               where
                 (ln, remPts) = getNextLine ps
@@ -81,7 +92,7 @@ removeBad pts = ln : removeBad remPts
                   (ln, remPts) = getNextLine pts
 
 --
-getNext :: Symbol -> State [(Point, Vector, Float)] Point
+getNext :: Symbol -> State [(Point, Direction, Float)] Point
 getNext Forward        = do ((curPos, curVec, adjAngle) : states) <- get
                             let newPos = curPos >+ curVec
                             put ((newPos, curVec, adjAngle) : states)
@@ -100,7 +111,7 @@ getNext PushState      = do ((curPos, curVec, adjAngle) : states) <- get
 
 getNext PopState       = do (_ : (curPos, curVec, adjAngle) : states) <- get
                             put ((curPos, curVec, adjAngle) : states)
-                            return $ mapTuple (-10000 +) curPos
+                            return $ curPos >+ Point (-10000, -10000)
 
 --modify (\curStateL -> if length curStateL > 1
 --                      then tail curStateL else curStateL)

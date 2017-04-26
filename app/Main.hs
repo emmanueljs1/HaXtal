@@ -8,9 +8,12 @@ import Test.QuickCheck
 
 -- | Code for drawing curves
 
+toGlossPoint :: Draw.Point -> Graphics.Gloss.Point
+toGlossPoint p = (getX p, getY p)
+
 -- draws a Picture from an LSystem
 drawPicture :: Int -> LSystem -> Picture
-drawPicture depth lsys = pictures (line <$> getPaths depth lsys)
+drawPicture depth lsys = pictures (line <$> (toGlossPoint <$>) <$> getPaths depth lsys)
 
 window :: Display
 window = InWindow "LSystems!" (200, 200) (10, 10)
