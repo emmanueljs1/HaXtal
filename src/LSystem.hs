@@ -5,36 +5,39 @@ module LSystem where
 
 import Prelude hiding (lookup)
 import Test.QuickCheck
-import Data.Map hiding (mapMaybe)
+import Data.Map hiding (mapMaybe, foldr, filter)
 import Data.Monoid
 import Data.Maybe
+import Data.List hiding (lookup, insert)
+import Data.Char
+import Text.Read
 import Control.Monad
 
--- a symbol represents an action to be performed
+-- | A symbol represents an action to be performed
 data Symbol = Forward     -- draw forward
-            | Turn Float  -- turn the current angle
-            | PushState   -- save the current position
-            | PopState    -- access the most recently pushed position
+            | Turn Float  -- turn the given angle
+            | AdjAngle Float    -- change global angle adjustment
+            | PushState   -- save the current position and angle
+            | PopState    -- access the most recently pushed position and angle
             | BOOP        -- TODO: what is BOOP
             deriving (Eq, Ord, Show)
 
-{- in our framework, a _variable_ or a _constant_ can have a
--- symbol associated with it
+-- | In our framework, a _variable_ or a _constant_ can have a
+-- symbol associated with it.
+-- The difference between a variable and a constant is that a variable
+-- has a rule that defines how it is replaced, while a constant does not
 
--- the difference between a variable and a constant is that a variable
--- has a rule that defines how it is replaced, while a constant does not -}
-
--- rules define the way a variable can be replaced with a combination of
--- variables and constants
--- we represent them as a map from characters to strings
--- for example X -> XX could be represented in the map as ('X', "XX")
+-- | Rules define the way a variable can be replaced with a combination of
+-- variables and constants.
+-- We represent them as a map from characters to strings.
+-- For example X -> XX could be represented in the map as ('X', "XX")
 type Rules = Map Char String
 
--- draw rules map variables and constants to symbols
+-- | Draw rules map variables and constants to symbols
 type DrawRules = Map Char Symbol
 
--- finally, an LSystem is a start state, a set of rules, and a set of draw rules
--- an example LSystem could be:
+-- | Finally, an LSystem is a start state, a set of rules, and a set
+-- of draw rules; an example LSystem could be:
 --   variables: F
 --   constants: +
 --   start: F
@@ -43,7 +46,31 @@ type DrawRules = Map Char Symbol
 data LSystem = LSystem { start :: String,
                          rules :: Rules,
                          toDraw :: DrawRules }
-                       deriving (Show, Eq)
+                       deriving Eq
+
+instance Show LSystem where
+  show l =
+    intercalate "\n" [startLine, variables, angleLine, rulesText] where
+      startLine = "Start: "     <> startString l
+      variables = "Variables: " <> varsString  l
+      angleLine = "Angle: "     <> angleString l
+      rulesText = "Rules:\n"    <> rulesString l
+
+startString :: LSystem -> String
+startString = start
+
+rulesString :: LSystem -> String
+rulesString (LSystem _ rs _) =
+  intercalate "\n" $ (\(k, v) -> [k] <> ": " <> v) <$> assocs rs
+
+angleString :: LSystem -> String
+angleString (LSystem _ _ drs) =
+  case lookup '-' drs of
+    Just (Turn f) -> show f
+    _ -> "90.0"
+
+varsString :: LSystem -> String
+varsString (LSystem _ rs _) = intersperse ',' (keys rs)
 
 -- Takes an LSystem and produces an infinite list of iterative expansions.
 -- The nth element of the result is the list of Symbols obtained from
@@ -86,12 +113,25 @@ makePlusDrawRule a = makeDrawRule '+' (Turn a)
 makeMinusDrawRule :: Float -> DrawRules
 makeMinusDrawRule a = makeDrawRule '-' (Turn a)
 
+-- increase angle draw rule, relates '<' to changing global angle adjustment by an angle a
+makeIncAngleRule :: Float -> DrawRules
+makeIncAngleRule a = makeDrawRule '<' (AdjAngle a)
+
+-- decrease angle draw rule, relates '>' to changing global angle adjustment by an angle a
+makeDecAngleRule :: Float -> DrawRules
+makeDecAngleRule a = makeDrawRule '>' (AdjAngle a)
+
+-- angle adjustment draw rules
+makeAdjAngleRule :: Float -> DrawRules
+makeAdjAngleRule a = makeIncAngleRule (-a) <> makeDecAngleRule a
+
 -- default draw rules are the most common rules, these relate
 -- 'F' to Forward, '[' to push state, ']' to pop state, '+' and '-' to turning
 -- by complementary angles
 makeDefaultDrawRules :: Float -> DrawRules
 makeDefaultDrawRules a = fDrawRule <> lBracketDrawRule <> rBracketDrawRule <>
-                          makePlusDrawRule (2 * pi - a) <> makeMinusDrawRule a
+                           makePlusDrawRule (-a) <> makeMinusDrawRule a
+
 
 -- base rule (no rules)
 baseRule :: Rules
@@ -105,20 +145,62 @@ makeRule = singleton
 combineRules :: Rules -> Rules -> Rules
 combineRules = (<>)
 
+-- zipMap keys values
+-- takes a list of keys and a list of values and returns
+-- a map that links each key in the first list to its
+-- corresponding value in the second list
+zipMap :: Ord k => [k] -> [v] -> Map k v
+zipMap = foldr combine (const empty) where
+  combine x acc (h : t) = insert x h (acc t)
+  combine _ _ [] = empty
+
 instance Arbitrary LSystem where
   arbitrary = liftM3 LSystem arbStart arbRules arbDrawRules where
-    variables = elements ['F', 'X', 'Y']
-    randomList =
-      resize 10 . listOf $ elements ['F', 'X', 'Y', '+', '-']
-    combination = liftM2 (:) variables randomList
+    variables = ['F', 'X', 'Y']
+    combination = comb where
+      chooseVariable = elements variables
+      randomList = resize 10 . listOf $ elements ['F', 'X', 'Y', '+', '-']
+      comb = do
+        l <- liftM2 (:) chooseVariable randomList
+        shuffle l
     arbStart = combination
-    arbRules =
-      Prelude.foldr (<>) empty .
-      zipWith (\var comb -> insert var comb empty) ['F', 'X', 'Y'] <$>
-      vectorOf 3 combination
-    arbDrawRules = insert 'Y' Forward . insert 'X' Forward <$> ddr where
-      ddr = makeDefaultDrawRules <$> elements [0.0..360.0]
+    arbRules = do
+      rulesToMap <- vectorOf 3 $ resize 5 combination
+      return $ zipMap variables rulesToMap
+    arbDrawRules = do
+      f <- elements [1.0..359.0]
+      return $ insert 'Y' Forward $ insert 'X' Forward (makeDefaultDrawRules f)
   shrink = undefined
 
-prop_canBeDrawn :: LSystem -> Bool
-prop_canBeDrawn lsys = undefined
+-- Gets an LSystem from a set of user strings
+-- getLSystem start rules variables angle
+-- _start_ is simply the starting string (all whitespaces are ignored)
+-- _rules_ is a 'text box' of rules of this form:
+--   X : XY+Y
+--   Y : FYF
+-- _variables_ are just the variables separated by
+-- _commas_ and/or spaces and/or nothing
+--   X, Y
+--   X Y
+--   XY
+-- _angle_ is just the angle for the LSystem, if an angle is not successfully
+-- read, the default value it is given is 90
+getLSystem :: String -> String -> String -> String -> LSystem
+getLSystem st rs variables angle = LSystem st' recRules drawRules where
+  st' = filter (not . isSpace) st
+  recRules = parseLines empty allLines where
+    allLines = filter (not . isSpace) <$> lines rs
+    parseLines m [] = m
+    parseLines m (s : ss) =
+      case s of
+        (c : ':' : cs) -> parseLines (insert c cs m) ss
+        _ -> parseLines m ss
+  drawRules = getVariables variables' <> defaultDrawRules where
+    getVariables [] = empty
+    getVariables (v : vs) = insert v Forward (getVariables vs)
+    defaultDrawRules =
+      case readMaybe angle of
+        Just f -> makeDefaultDrawRules f
+        Nothing -> makeDefaultDrawRules 90.0
+    variables' = filter (\c -> not (isSpace c) && c /= ',') variables
+--getLSystem _ = LSystem "" baseRule baseDrawRule

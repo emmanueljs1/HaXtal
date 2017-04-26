@@ -1,6 +1,5 @@
--- | This file containns examples of common fractals represented as LSystems
--- | It also gives the option of drawing any of these using Haskell's Gloss
--- | library
+-- | This file containns examples of common fractals represented as LSystems,
+-- | with some randomly generated LSystems as well
 
 module Examples where
 import LSystem
@@ -33,6 +32,12 @@ dragon = LSystem "FX" (r1 <> r2) (makeDefaultDrawRules (pi / 2)) where
   r1 = makeRule 'X' "X+YF+"
   r2 = makeRule 'Y' "-FX-Y"
 
+-- Dragon Fractal with angle growing
+dragon2 :: LSystem
+dragon2 = LSystem "FX" (r1 <> r2) (makeDefaultDrawRules (pi / 2) <> makeAdjAngleRule (pi / (2^16))) where
+  r1 = makeRule 'X' "X<+YF<+"
+  r2 = makeRule 'Y' "-FX>-Y"
+
 -- Hilbert Curve
 hilbert :: LSystem
 hilbert = LSystem "X" (r1 <> r2) (makeDefaultDrawRules (pi / 2)) where
@@ -54,19 +59,13 @@ plant = LSystem "X" (r1 <> r2) (makeDefaultDrawRules (25 * pi / 180)) where
   r1 = makeRule 'X' "F-[[X]+X]+F[+FX]-X"
   r2 = makeRule 'F' "FF"
 
--- Arbitrary Curve
-arbCurve :: IO LSystem
-arbCurve = generate arbitrary
---------------------------------------------------------------------------------
--- | Code for drawing curves
-
--- window :: Display
--- window = InWindow "Nice Window" (200, 200) (10, 10)
-
--- background :: Color
--- background = white
-
--- main :: IO ()
--- main = do
---   lsys <- generate arbitrary
---   display window background (drawPicture 6 lsys)
+-- Sunflower Curve -- Randomly generated using arbitrary!
+sunflower :: LSystem
+sunflower = LSystem "YX+X" sunflowerRules sunflowerDrawRules where
+  r1 = makeRule 'F' "XFF"
+  r2 = makeRule 'Y' "X+Y+Y"
+  sunflowerRules = foldr combineRules baseRule [r1, r2]
+  dr1 = makeDrawRule 'X' Forward
+  dr2 = makeDrawRule 'Y' Forward
+  sunflowerDrawRules =
+    foldr combineDrawRules baseDrawRule [dr1, dr2, makeDefaultDrawRules 185.0]

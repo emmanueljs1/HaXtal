@@ -25,3 +25,30 @@ Things to do for haxtal
 L : SYS
 S : F|+[F->Y[S]]
 Y : [--F-F+FY]+
+
+start = "Y+FY-XX-" rules = [('F',"F++F"),('X',"F"),('Y',"F+")]
+
+Start: YY+X+X--XX
+Variables: F,X,Y
+Angle: 122.0
+Rules:
+ F: XY+X---+
+ X: YXYXFX
+ Y: X+YXF
+
+Start: X-YXYX+-F
+Variables: F,X,Y
+Angle: 135.0
+Rules:
+  F: FYF-XX
+  X: FY+Y
+  Y: YF+FF
+
+<b> twin circles </b>
+  Start: XX+
+  Variables: F,X,Y
+  Angle: 251.0
+  Rules:
+   F: Y+--
+   X: X-X
+   Y: X+
