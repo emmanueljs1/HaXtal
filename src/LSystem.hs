@@ -120,19 +120,31 @@ makeRule = singleton
 combineRules :: Rules -> Rules -> Rules
 combineRules = (<>)
 
+-- zipWithMap keys values
+-- takes a list of keys and a list of values and returns
+-- a map that links each key in the first list to its
+-- corresponding value in the second list
+zipWithMap :: Ord k => [k] -> [v] -> Map k v
+zipWithMap = foldr combine (const empty) where
+  combine x acc (h : t) = insert x h (acc t)
+  combine _ _ [] = empty
+
 instance Arbitrary LSystem where
   arbitrary = liftM3 LSystem arbStart arbRules arbDrawRules where
     variables = ['F', 'X', 'Y']
-    combination = liftM2 (:) chooseVariable randomList where
+    combination = comb where
       chooseVariable = elements variables
       randomList = resize 10 . listOf $ elements ['F', 'X', 'Y', '+', '-']
+      comb = do
+        l <- liftM2 (:) chooseVariable randomList
+        shuffle l
     arbStart = combination
-    arbRules =
-      foldr (<>) empty . zipWith linkRules variables <$> expansions where
-        linkRules var comb = insert var comb empty
-        expansions = vectorOf 3 combination
-    arbDrawRules = insert 'Y' Forward . insert 'X' Forward <$> ddr where
-      ddr = makeDefaultDrawRules <$> elements [1.0..360.0]
+    arbRules = do
+      rulesToMap <- vectorOf 3 $ resize 5 combination
+      return $ zipWithMap variables rulesToMap
+    arbDrawRules = do
+      f <- elements [1.0..360.0]
+      return $ insert 'Y' Forward $ insert 'X' Forward (makeDefaultDrawRules f)
   shrink = undefined
 
 -- Gets an LSystem from a set of user strings
