@@ -60,11 +60,13 @@ main = mainWidget $ do
   -- to an IO instance and perform the event.
   let u = T.unpack
   performEvent_ $ liftIO . drawPaths ctx . getPaths defaultLevels
-                . uncurryList getLSystem
-               <$> tagPromptlyDyn (distributeListOverDynPure
-                                  [u <$> value startText, u <$> value rulesText,
-                                   u <$> value varsText,  u <$> value angleText]
-                                  ) b
+                . getLSystem
+               <$> tagPromptlyDyn (mconcat
+                [ (\x -> mempty {lscStart = x}) . u <$> value startText
+                , (\x -> mempty {lscRules = x}) . u <$> value rulesText
+                , (\x -> mempty {lscVars = x})  . u <$> value varsText
+                , (\x -> mempty {lscAngle = x}) . u <$> value angleText
+                ] ) b
 
 -- Draws a list of paths to the context
 drawPaths ::(MonadIO m) => DOM.CanvasRenderingContext2D -> [[Vector]] -> m ()
@@ -84,6 +86,9 @@ drawPaths ctx paths = do
       traverse_ (uncurry (CVS.lineTo ctx) . tr) p
 
 -------------- Helpers and Constants -------------------------------------------
+  
+
+
 canvasWidth = 1000.0
 canvasHeight = 1000.0
 drawingScale = 10.0
@@ -105,10 +110,5 @@ lsysFromDD 5 = sierpinskiArrowhead
 lsysFromDD 6 = plant
 lsysFromDD 7 = sunflower
 lsysFromDD _ = plant
-
-uncurryList :: (String -> String -> String -> String -> a) -> [String] -> a
-uncurryList f (s1 : s2 : s3 : s4 : t) = f s1 s2 s3 s4
-uncurryList _ _ = error "uncurryList: not enough elements in list"
-
 
 --------------------------------------------------------------------------------

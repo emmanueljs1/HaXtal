@@ -158,6 +158,18 @@ instance Arbitrary LSystem where
       return $ insert 'Y' Forward $ insert 'X' Forward (makeDefaultDrawRules f)
   shrink = undefined
 
+data LSysComps = LSysComps {lscStart :: String, lscRules :: String,
+                            lscVars :: String, lscAngle :: String}
+
+instance Monoid LSysComps where
+  mempty = LSysComps "" "" "" ""
+  mappend (LSysComps s1 r1 v1 a1) (LSysComps s2 r2 v2 a2) =
+    LSysComps (t s1 s2) (t r1 r2) (t v1 v2) (t a1 a2)
+    where
+      t a b
+        | b == "" = a
+        | otherwise = b
+
 -- Gets an LSystem from a set of user strings
 -- getLSystem start rules variables angle
 -- _start_ is simply the starting string (all whitespaces are ignored)
@@ -171,8 +183,8 @@ instance Arbitrary LSystem where
 --   XY
 -- _angle_ is just the angle for the LSystem, if an angle is not successfully
 -- read, the default value it is given is 90
-getLSystem :: String -> String -> String -> String -> LSystem
-getLSystem st rs variables angle = LSystem st' recRules drawRules where
+getLSystem :: LSysComps -> LSystem
+getLSystem (LSysComps st rs variables angle) = LSystem st' recRules drawRules where
   st' = filter (not . isSpace) st
   recRules = parseLines empty allLines where
     allLines = filter (not . isSpace) <$> lines rs
@@ -190,3 +202,5 @@ getLSystem st rs variables angle = LSystem st' recRules drawRules where
         Nothing -> makeDefaultDrawRules 90.0
     variables' = filter (\c -> not (isSpace c) && c /= ',') variables
 --getLSystem _ = LSystem "" baseRule baseDrawRule
+
+  
