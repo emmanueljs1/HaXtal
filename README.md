@@ -8,6 +8,12 @@ Emmanuel Suarez - emsu
 
 Kyle Rosenbluth - kyro
 
+
+<h2> Web </h2>
+
+http://cis.upenn.edu/~emsu/haxtal/index.html
+
+
 <h2>How To Run: </h2>
 
 <h4>Desktop App: </h4>
