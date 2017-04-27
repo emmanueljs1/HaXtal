@@ -8,14 +8,16 @@ Emmanuel Suarez - emsu
 
 Kyle Rosenbluth - kyro
 
-<h2>How To Run Desktop App: </h2>
+<h2>How To Run: </h2>
 
+<h4>Desktop App: </h4>
 stack build <br>
 stack exec haxtal-exe
 
+<h4>Testing Suite: </h4>
 stack test
 
-<h2>How To Run Web App: </h2>
+<h4>Web App: </h4>
 
 git clone https://github.com/reflex-frp/reflex-platform
 
@@ -58,11 +60,11 @@ Contains tests for LSystem.hs.
 Contains tests for Draw.hs.
 
 <h2>Dependencies:</h2>
-- Stack
-- GHCJS (Web only)
-- Reflex (Web only)
-- Gloss (App only)
-- QuickCheck
+- Stack <br>
+- GHCJS (Web only) <br>
+- Reflex (Web only) <br>
+- Gloss (App only) <br>
+- QuickCheck <br>
 - HUnit
 
 <h2>Cool LSystems: </h2>
