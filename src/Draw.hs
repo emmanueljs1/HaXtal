@@ -27,7 +27,7 @@ makeBoundingBox p = BoundingBox x y x y
                       y = getY p
 
 instance Monoid BoundingBox where
-  mempty        = BoundingBox maxValue maxValue minValue minValue
+  mempty        = BoundingBox maxValue maxValue (-maxValue) (-maxValue)
   mappend b1 b2 =
     BoundingBox (min (minX b1) (minX b2)) (min (minY b1) (minY b2))
                 (max (maxX b1) (maxX b2)) (max (maxY b1) (maxY b2))
@@ -36,7 +36,7 @@ class Vector a where
   makeV :: (Float, Float) -> a
   getX :: a -> Float
   getY :: a -> Float
-  getP :: a -> (Float, Float)
+  getV :: a -> (Float, Float)
   (>+) :: Vector b => a -> b -> a
   v1 >+ v2 =  makeV (getX v1 + getX v2, getY v1 + getY v2)
   rotateV :: Float -> a -> a
@@ -53,7 +53,7 @@ instance Vector Direction where
   makeV = Direction
   getX (Direction d) = fst d
   getY (Direction d) = snd d
-  getP (Direction d) = d
+  getV (Direction d) = d
 
 newtype Point = Point (Float, Float) deriving (Show, Eq)
 
@@ -61,7 +61,7 @@ instance Vector Point where
   makeV = Point
   getX (Point p) = fst p
   getY (Point p) = snd p
-  getP (Point p) = p
+  getV (Point p) = p
 
 -- | Gets bounding box of a drawing for use in fitting the drawing in a display
 getDrawBounds :: [Point] -> BoundingBox
@@ -166,3 +166,16 @@ minValue = x
 -- | Arbitrary instances
 instance Arbitrary Point where
   arbitrary = Point <$> liftM2 (,) arbitrary arbitrary
+
+instance Arbitrary Direction where
+  arbitrary = Direction <$> liftM2 (,) arbitrary arbitrary
+
+instance Arbitrary Symbol where
+  arbitrary = oneof [elements [Forward],
+                     elements [Jump],
+                     Turn <$> arbitrary,
+                     AdjAngle <$> arbitrary,
+                     AdjLen <$> arbitrary,
+                     elements [PushState],
+                     elements [PopState]]
+

@@ -2,11 +2,22 @@
 
 <b>Members: </b>
 
-David Buckman
+David Buckman - dbuckman
 
-Emmanuel Suarez
+Emmanuel Suarez - emsu
 
-Kyle Rosenbluth
+Kyle Rosenbluth - kyro
+
+<b>How To Run: </b>
+stack build
+stack exec haxtal-exe
+
+stack test
+
+<b>Overview: </b>
+
+<i>Main.hs </i>
+
 
 Things to do for haxtal
 
