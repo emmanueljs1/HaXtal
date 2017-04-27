@@ -22,10 +22,20 @@ main = mainWidget $ do
   el "h1" $ text "Welcome to HaXtal!"
   el "h2" $ text "Please select a fractal to display:"
   dd <- dropdown 1 ddOpts def
-  startText <- textInput def
-  rulesText <- textArea def
-  varsText <- textInput def
-  angleText <- textInput def
+  
+  let tddLsys = tagPromptlyDyn (lsysFromDD <$> (value dd)) (_dropdown_change dd)
+      rulesEv = rulesString <$> tddLsys
+      rulesConfig = def {_textAreaConfig_setValue = T.pack <$> rulesEv}
+      varsEv = varsString <$> tddLsys
+      varsConfig = def {_textInputConfig_setValue = T.pack <$> varsEv}
+      angleEv = angleString <$> tddLsys
+      angleConfig = def {_textInputConfig_setValue = T.pack <$> angleEv}
+      startEv = startString <$> tddLsys
+      startConfig = def {_textInputConfig_setValue = T.pack <$> startEv}
+  startText <- textInput startConfig
+  rulesText <- textArea rulesConfig
+  varsText <- textInput varsConfig
+  angleText <- textInput angleConfig
   b <- button "Generate"
   el "br" blank
   (e, _) <- element "canvas" def blank
@@ -50,14 +60,16 @@ main = mainWidget $ do
   -- to an IO instance and perform the event.
   let u = T.unpack
   performEvent_ $ liftIO . drawPaths ctx . getPaths defaultLevels
-                . uncurryList getLSystem
-               <$> tagPromptlyDyn (distributeListOverDynPure
-                                  [u <$> value startText, u <$> value rulesText,
-                                   u <$> value varsText,  u <$> value angleText]
-                                  ) b
+                . getLSystem
+               <$> tagPromptlyDyn (mconcat
+                [ (\x -> mempty {lscStart = x}) . u <$> value startText
+                , (\x -> mempty {lscRules = x}) . u <$> value rulesText
+                , (\x -> mempty {lscVars = x})  . u <$> value varsText
+                , (\x -> mempty {lscAngle = x}) . u <$> value angleText
+                ] ) b
 
 -- Draws a list of paths to the context
-drawPaths ::(MonadIO m) => DOM.CanvasRenderingContext2D -> [[Vector]] -> m ()
+drawPaths ::(MonadIO m) => DOM.CanvasRenderingContext2D -> [[Point]] -> m ()
 drawPaths ctx paths = do
   CVS.clearRect ctx (-canvasWidth / 2.0) (-canvasHeight / 2.0)
                     canvasWidth canvasHeight
@@ -69,11 +81,14 @@ drawPaths ctx paths = do
   CVS.restore ctx
   where
     drawPath p@(p1:_) = do
-      let tr = mapTuple (* drawingScale)
-      uncurry (CVS.moveTo ctx) $ tr p1
-      traverse_ (uncurry (CVS.lineTo ctx) . tr) p
+      let tr (Point p) = Point $ mapTuple (* drawingScale) p
+      uncurry (CVS.moveTo ctx) $ getP . tr $ p1
+      traverse_ (uncurry (CVS.lineTo ctx) . getP . tr) p
 
 -------------- Helpers and Constants -------------------------------------------
+  
+
+
 canvasWidth = 1000.0
 canvasHeight = 1000.0
 drawingScale = 10.0
@@ -95,10 +110,5 @@ lsysFromDD 5 = sierpinskiArrowhead
 lsysFromDD 6 = plant
 lsysFromDD 7 = sunflower
 lsysFromDD _ = plant
-
-uncurryList :: (String -> String -> String -> String -> a) -> [String] -> a
-uncurryList f (s1 : s2 : s3 : s4 : t) = f s1 s2 s3 s4
-uncurryList _ _ = error "uncurryList: not enough elements in list"
-
 
 --------------------------------------------------------------------------------

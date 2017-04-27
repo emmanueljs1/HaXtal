@@ -18,7 +18,7 @@ Things to do for haxtal
 - [ ] Increase angle, increase line size (David or Kyle)
 - [ ] Styling (Kyle)
 - [ ] Orient all fractals to be visible (Kyle and David)
-- [ ] LSYstem input to instant generation (Emma)
+- [x] LSYstem input to instant generation (Emma)
 - [ ] Random fractal button (Kyle and Emma)
 
 
