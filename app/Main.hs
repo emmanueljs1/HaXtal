@@ -23,32 +23,17 @@ window = InWindow "LSystems!" (200, 200) (10, 10)
 background :: Color
 background = white
 
-drawingSierpinski :: Picture
-drawingSierpinski = drawPicture 8 sierpinski
-
-drawingDragon :: Picture
-drawingDragon = drawPicture 10 dragon
-
-drawingDragon2 :: Picture
-drawingDragon2 = drawPicture 8 dragon2
-
-drawingHilbert :: Picture
-drawingHilbert = drawPicture 6 hilbert
-
-drawingGosper :: Picture
-drawingGosper = drawPicture 4 gosper
-
-drawingSierpinskiArrowhead :: Picture
-drawingSierpinskiArrowhead = drawPicture 6 sierpinskiArrowhead
-
-drawingPlant :: Picture
-drawingPlant = drawPicture 6 plant
-
-drawingSunflower :: Picture
-drawingSunflower = drawPicture 6 sunflower
-
-drawingKochLake :: Picture
-drawingKochLake = drawPicture 3 kochLake
+samplePictures :: [Picture]
+samplePictures = [
+                   drawPicture 8 sierpinski,
+                   drawPicture 10 dragon,
+                   drawPicture 8 dragon2,
+                   drawPicture 6 hilbert,
+                   drawPicture 4 gosper,
+                   drawPicture 6 sierpinskiArrowhead,
+                   drawPicture 6 plant,
+                   drawPicture 3 kochLake
+                 ]
 
 main :: IO ()
 main = do
@@ -60,9 +45,5 @@ main = do
    s <- getLine
    let op = fromMaybe 0 (readMaybe s)
    lsys <- generate (resize op arbitrary)
-   let pic =
-     if op < 4 then
-       drawPicture 6 lsys
-     else
-       drawingSierpinski
+   let pic = if op < 4 then drawPicture 6 lsys else samplePictures !! (op - 4)
    display window background pic

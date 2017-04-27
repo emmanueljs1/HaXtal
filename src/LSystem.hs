@@ -287,6 +287,7 @@ getLSystem (LSysComps st rs variables angle _) = LSystem st' recRules drawRules
         _ -> parseLines m ss
     drawRules = getVariables variables' <> defaultDrawRules
     getVariables [] = empty
+    getVariables ('f' : vs) = insert 'f' Jump (getVariables vs)
     getVariables (v : vs) = insert v Forward (getVariables vs)
     defaultDrawRules =
       case readMaybe angle of
@@ -294,4 +295,4 @@ getLSystem (LSysComps st rs variables angle _) = LSystem st' recRules drawRules
         Nothing -> makeDefaultDrawRules $ toRad 90.0
     toRad = (/ 180.0) . (* pi)
     variables' =
-      filter (\c -> not (isSpace c) && c /= ',') variables <> filter isUpper st
+      filter (\c -> not (isSpace c) && c /= ',') variables <> filter isLetter st
