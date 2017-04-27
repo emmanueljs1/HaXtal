@@ -69,8 +69,10 @@ rulesString (LSystem _ rs _) =
 angleString :: LSystem -> String
 angleString (LSystem _ _ drs) =
   case lookup '-' drs of
-    Just (Turn f) -> show f
+    Just (Turn f) -> show $ toDeg f
     _ -> "90.0"
+  where
+    toDeg = (* 180.0) . (/ pi)
 
 -- | variables of LSystem
 varsString :: LSystem -> String
@@ -246,20 +248,22 @@ instance Monoid LSysComps where
 -- _angle_ is just the angle for the LSystem, if an angle is not successfully
 -- read, the default value it is given is 90
 getLSystem :: LSysComps -> LSystem
-getLSystem (LSysComps st rs variables angle _) = LSystem st' recRules drawRules where
-  st' = filter (not . isSpace) st
-  recRules = parseLines empty allLines where
+getLSystem (LSysComps st rs variables angle _) = LSystem st' recRules drawRules
+  where
+    st' = filter (not . isSpace) st
+    recRules = parseLines empty allLines
     allLines = filter (not . isSpace) <$> lines rs
     parseLines m [] = m
     parseLines m (s : ss) =
       case s of
         (c : ':' : cs) -> parseLines (insert c cs m) ss
         _ -> parseLines m ss
-  drawRules = getVariables variables' <> defaultDrawRules where
+    drawRules = getVariables variables' <> defaultDrawRules
     getVariables [] = empty
     getVariables (v : vs) = insert v Forward (getVariables vs)
     defaultDrawRules =
       case readMaybe angle of
-        Just f -> makeDefaultDrawRules f
-        Nothing -> makeDefaultDrawRules 90.0
+        Just f -> makeDefaultDrawRules $ toRad f
+        Nothing -> makeDefaultDrawRules $ toRad 90.0
+    toRad = (/ 180.0) . (* pi)
     variables' = filter (\c -> not (isSpace c) && c /= ',') variables
