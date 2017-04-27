@@ -48,14 +48,16 @@ Contains tests for Draw.hs.
 
 
 
-<h3>Cool LSystems: </h3>
+<h2>Cool LSystems: </h2>
 
 <i>+1</i>
+
 L : SYS
 S : F|+[F->Y[S]]
 Y : [--F-F+FY]+
 
 <i>VERY COOL FRACTAL, RANDOMLY GENERATED</i>
+
 Start: Y
 Variables: F,X,Y
 Angle: 91.0
@@ -65,6 +67,7 @@ X: +[[-F
 Y: F-+-+FYX]
 
 <i>CHRISTMAS WREATH, RANDMOLY GENERATED</i>
+
 Start: XX+
 Variables: F,X,Y
 Angle: 283.0
