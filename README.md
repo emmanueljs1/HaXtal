@@ -67,6 +67,6 @@ Contains tests for Draw.hs.
 - QuickCheck <br>
 - HUnit
 
-This was a final project for CIS 552 at the University of Pennsylvania
 
+This was a final project for CIS 552 at the University of Pennsylvania:
 http://cis.upenn.edu/~cis552/
