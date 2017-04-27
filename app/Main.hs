@@ -7,6 +7,7 @@ import Draw
 import Test.QuickCheck
 import Text.Read
 import Data.Maybe
+import Control.Monad
 
 -- | Code for drawing curves
 toGlossPoint :: Draw.Point -> Graphics.Gloss.Point
@@ -57,4 +58,5 @@ main = do
          | op < 4 = drawPicture 6 lsys
          | op < 12 = samplePictures !! (op - 4)
          | otherwise = drawPicture 3 kochLake
+   when (op < 4) $ putStrLn "Random LSystem:" >> print lsys
    display window background pic
