@@ -10,7 +10,7 @@ import Reflex.Dom
 import Control.Monad.IO.Class
 import qualified Data.Text as T
 import qualified Data.Map as Map
-import Data.JSString
+import Data.JSString hiding (concat)
 import Data.Monoid
 import Data.Foldable
 import qualified GHCJS.DOM.JSFFI.Generated.CanvasRenderingContext2D as CVS
@@ -46,7 +46,7 @@ main = mainWidget $ do
   CVS.setWidth canvas $ round canvasWidth
   CVS.setHeight canvas $ round canvasHeight
   -- Put the origin at the center of the canvas
-  CVS.translate ctx (canvasWidth / 2.0) (canvasHeight / 2.0)
+  -- CVS.translate ctx (canvasWidth / 2.0) (canvasHeight / 2.0)
   -- Draw the default fractal from the starting selection of the dropdown
   drawPaths ctx (getPaths defaultLevels $ lsysFromDD 1)
 
@@ -71,15 +71,17 @@ main = mainWidget $ do
 -- Draws a list of paths to the context
 drawPaths ::(MonadIO m) => DOM.CanvasRenderingContext2D -> [[Point]] -> m ()
 drawPaths ctx paths = do
-  CVS.clearRect ctx (-canvasWidth / 2.0) (-canvasHeight / 2.0)
-                    canvasWidth canvasHeight
+  CVS.clearRect ctx 0 0 canvasWidth canvasHeight
   CVS.save ctx
+  CVS.translate ctx ((- minX dBounds) * drawingScale) ((- minY dBounds) * drawingScale)
   CVS.beginPath ctx
   -- Draw every path in the lsystem
   traverse_ drawPath paths
   CVS.stroke ctx
   CVS.restore ctx
   where
+    dBounds = getDrawBounds $ concat paths
+    drawingScale = 500.0 / ((maxX dBounds) - (minX dBounds))
     drawPath p@(p1:_) = do
       let tr (Point p) = Point $ mapTuple (* drawingScale) p
       uncurry (CVS.moveTo ctx) $ getP . tr $ p1
@@ -91,8 +93,7 @@ drawPaths ctx paths = do
 
 canvasWidth = 1000.0
 canvasHeight = 1000.0
-drawingScale = 10.0
-defaultLevels = 4
+defaultLevels = 5
 ddOpts = constDyn $ (1 =: "Gosper")
                   <> (2 =: "Hilbert")
                   <> (3 =: "Sierpinski")
