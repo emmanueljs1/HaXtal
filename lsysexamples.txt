@@ -1,0 +1,24 @@
+Cool LSystems:
+
++1
+L : SYS
+S : F|+[F->Y[S]]
+Y : [--F-F+FY]+
+
+VERY COOL FRACTAL, RANDOMLY GENERATED
+Start: Y
+Variables: F,X,Y
+Angle: 91.0
+Rules:
+F: YX
+X: +[[-F
+Y: F-+-+FYX]
+
+CHRISTMAS WREATH, RANDMOLY GENERATED
+Start: XX+
+Variables: F,X,Y
+Angle: 283.0
+Rules:
+F: FYX]-
+X: YX[FYX
+Y: XFY]YF[[]

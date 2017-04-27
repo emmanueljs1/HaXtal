@@ -1,4 +1,4 @@
-<h1> CIS 552 Final Project </h1>
+<h1> HaXtal </h1>
 
 <b>Members: </b>
 
@@ -67,27 +67,6 @@ Contains tests for Draw.hs.
 - QuickCheck <br>
 - HUnit
 
-<h2>Cool LSystems: </h2>
+This was a final project for CIS 552 at the University of Pennsylvania
 
-<i>+1</i><br>
-L : SYS
-S : F|+[F->Y[S]]
-Y : [--F-F+FY]+
-
-<i>VERY COOL FRACTAL, RANDOMLY GENERATED</i><br>
-Start: Y
-Variables: F,X,Y
-Angle: 91.0
-Rules:
-F: YX
-X: +[[-F
-Y: F-+-+FYX]
-
-<i>CHRISTMAS WREATH, RANDMOLY GENERATED</i><br>
-Start: XX+
-Variables: F,X,Y
-Angle: 283.0
-Rules:
-F: FYX]-
-X: YX[FYX
-Y: XFY]YF[[]
+http://cis.upenn.edu/~cis552/
