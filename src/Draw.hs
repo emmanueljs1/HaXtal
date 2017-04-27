@@ -36,7 +36,7 @@ class Vector a where
   makeV :: (Float, Float) -> a
   getX :: a -> Float
   getY :: a -> Float
-  getP :: a -> (Float, Float)
+  getV :: a -> (Float, Float)
   (>+) :: Vector b => a -> b -> a
   v1 >+ v2 =  makeV (getX v1 + getX v2, getY v1 + getY v2)
   rotateV :: Float -> a -> a
@@ -53,7 +53,7 @@ instance Vector Direction where
   makeV = Direction
   getX (Direction d) = fst d
   getY (Direction d) = snd d
-  getP (Direction d) = d
+  getV (Direction d) = d
 
 newtype Point = Point (Float, Float) deriving (Show, Eq)
 
@@ -61,7 +61,7 @@ instance Vector Point where
   makeV = Point
   getX (Point p) = fst p
   getY (Point p) = snd p
-  getP (Point p) = p
+  getV (Point p) = p
 
 -- | Gets bounding box of a drawing for use in fitting the drawing in a display
 getDrawBounds :: [Point] -> BoundingBox

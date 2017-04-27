@@ -22,6 +22,9 @@ import qualified GHCJS.DOM.JSFFI.Generated.HTMLCanvasElement as CVS
 main :: IO ()
 main = mainWidget $ do
   rec
+    let defLsys = lsysFromDD 1
+        u = T.unpack
+        p = T.pack
     el "h1" $ text "Welcome to HaXtal!"
     el "h2" $ text "Please select a fractal to display:"
     dd <- dropdown 1 dropdownOptions def
@@ -33,16 +36,20 @@ main = mainWidget $ do
         randLsysEv = (randomLs !!) <$> (updated randCount)
 
         rulesEv = leftmost [rulesString <$> lsysEv, rulesString <$> randLsysEv]
-        rulesConfig = def {_textAreaConfig_setValue = T.pack <$> rulesEv}
+        rulesConfig = def {_textAreaConfig_setValue = p <$> rulesEv,
+                           _textAreaConfig_initialValue = p $ rulesString defLsys}
 
         varsEv = leftmost [varsString <$> lsysEv, varsString <$> randLsysEv]
-        varsConfig = def {_textInputConfig_setValue = T.pack <$> varsEv}
+        varsConfig = def {_textInputConfig_setValue = T.pack <$> varsEv,
+                          _textInputConfig_initialValue = p $ varsString defLsys}
 
         angleEv = leftmost [angleString <$> lsysEv, angleString <$> randLsysEv]
-        angleConfig = def {_textInputConfig_setValue = T.pack <$> angleEv}
+        angleConfig = def {_textInputConfig_setValue = T.pack <$> angleEv,
+                           _textInputConfig_initialValue = p $ angleString defLsys}
 
         startEv = leftmost [startString <$> lsysEv, startString <$> randLsysEv]
-        startConfig = def {_textInputConfig_setValue = T.pack <$> startEv}
+        startConfig = def {_textInputConfig_setValue = T.pack <$> startEv,
+                           _textInputConfig_initialValue = p $ startString defLsys}
     startText  <- textInput startConfig
     rulesText  <- textArea rulesConfig
     varsText   <- textInput varsConfig
@@ -63,7 +70,7 @@ main = mainWidget $ do
     CVS.setHeight canvas $ round canvasHeight
 
     -- Draw the default fractal from the starting selection of the dropdown
-    drawPaths ctx (getPaths defaultLevels $ lsysFromDD 1)
+    drawPaths ctx (getPaths defaultLevels $ defLsys)
 
     -- Attach the redrawing of fractals to the 'generate' button and
     -- pass values of the fields to getLSystem.
@@ -73,7 +80,7 @@ main = mainWidget $ do
     -- map the value of the new dynamic to the action of the 'generate'
     -- button being pressed. Then we create and draw the lsystem, lift
     -- to an IO instance and perform the event.
-    let u = T.unpack
+  
     performEvent_ $ liftIO . drawPaths ctx . getPathsForLSysComps
                 <$> tagPromptlyDyn (mconcat
                   [ (\x -> mempty {lscStart = x})  . u <$> value startText
@@ -97,7 +104,8 @@ drawPaths ::(MonadIO m) => DOM.CanvasRenderingContext2D -> [[Point]] -> m ()
 drawPaths ctx paths = do
   CVS.clearRect ctx 0 0 canvasWidth canvasHeight
   CVS.save ctx
-  CVS.translate ctx ((- minX dBounds) * drawingScale) ((- minY dBounds) * drawingScale)
+  (CVS.translate ctx) (minX dBounds * (-drawingScale)) $ minY dBounds * (-drawingScale)
+          -- ((- minX dBounds) * drawingScale) ((- minY dBounds) * drawingScale)
   CVS.beginPath ctx
   -- Draw every path in the lsystem
   traverse_ drawPath paths
@@ -108,13 +116,10 @@ drawPaths ctx paths = do
     drawingScale = 500.0 / ((maxX dBounds) - (minX dBounds))
     drawPath p@(p1:_) = do
       let tr p = mulSV drawingScale p
-      uncurry (CVS.moveTo ctx) $ getP . tr $ p1
-      traverse_ (uncurry (CVS.lineTo ctx) . getP . tr) p
+      uncurry (CVS.moveTo ctx) $ getV . tr $ p1
+      traverse_ (uncurry (CVS.lineTo ctx) . getV . tr) p
 
 -------------- Helpers and Constants -------------------------------------------
-  
-
-
 canvasWidth = 1000.0
 canvasHeight = 1000.0
 defaultLevels = 5
