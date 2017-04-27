@@ -10,7 +10,7 @@ Kyle Rosenbluth - kyro
 
 <h2>How To Run: </h2>
 
-stack build
+stack build <br>
 stack exec haxtal-exe
 
 stack test
