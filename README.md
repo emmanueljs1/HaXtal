@@ -10,7 +10,7 @@ Kyle Rosenbluth - kyro
 
 <h2>How To Run: </h2>
 
-stack build
+stack build <br>
 stack exec haxtal-exe
 
 stack test
@@ -50,14 +50,12 @@ Contains tests for Draw.hs.
 
 <h2>Cool LSystems: </h2>
 
-<i>+1</i>
-
+<i>+1</i><br>
 L : SYS
 S : F|+[F->Y[S]]
 Y : [--F-F+FY]+
 
-<i>VERY COOL FRACTAL, RANDOMLY GENERATED</i>
-
+<i>VERY COOL FRACTAL, RANDOMLY GENERATED</i><br>
 Start: Y
 Variables: F,X,Y
 Angle: 91.0
@@ -66,8 +64,7 @@ F: YX
 X: +[[-F
 Y: F-+-+FYX]
 
-<i>CHRISTMAS WREATH, RANDMOLY GENERATED</i>
-
+<i>CHRISTMAS WREATH, RANDMOLY GENERATED</i><br>
 Start: XX+
 Variables: F,X,Y
 Angle: 283.0
