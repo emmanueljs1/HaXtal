@@ -8,12 +8,24 @@ Emmanuel Suarez - emsu
 
 Kyle Rosenbluth - kyro
 
-<h2>How To Run: </h2>
+<h2>How To Run Desktop App: </h2>
 
 stack build <br>
 stack exec haxtal-exe
 
 stack test
+
+<h2>How To Run Web App: </h2>
+
+git clone https://github.com/reflex-frp/reflex-platform
+
+Then, navigate into the reflex-platform folder and run the try-reflex command.
+
+cd reflex-platform
+./try-reflex
+
+Then, cd back to this folder in the nix shell, and run `ghcjs Web.hs`
+Then go into the Web.jsexe folder, and double click index.html
 
 <h2>Overview: </h2>
 
@@ -45,8 +57,13 @@ Contains tests for LSystem.hs.
 
 Contains tests for Draw.hs.
 
-
-
+<h2>Dependencies:</h2>
+- Stack
+- GHCJS (Web only)
+- Reflex (Web only)
+- Gloss (App only)
+- QuickCheck
+- HUnit
 
 <h2>Cool LSystems: </h2>
 
