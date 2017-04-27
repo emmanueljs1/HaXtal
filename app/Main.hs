@@ -46,9 +46,8 @@ drawingSunflower :: Picture
 drawingSunflower = drawPicture 6 sunflower
 
 main :: IO ()
-main = display window background drawingDragon2
--- main = do
---   lsys <- generate arbitrary
---   print lsys
---   print $ getDrawBounds (concat $ getPaths 6 lsys)
---   display window background (drawPicture 6 lsys)
+main = do
+  lsys <- generate arbitrary
+  print lsys
+  print $ getDrawBounds (concat $ getPaths 6 lsys)
+  display window background (drawPicture 6 lsys)

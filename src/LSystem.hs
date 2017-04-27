@@ -1,6 +1,5 @@
 -- | This file lays down a framework for representing LSystems
--- | as Haskell Types
-
+-- as Haskell Types
 module LSystem where
 
 import Prelude hiding (lookup)
@@ -21,7 +20,7 @@ data Symbol = Forward     -- draw forward
             | PopState    -- access the most recently pushed position and angle
             deriving (Eq, Ord, Show)
 
--- | In our framework, a _variable_ or a _constant_ can have a
+-- In our framework, a _variable_ or a _constant_ can have a
 -- symbol associated with it.
 -- The difference between a variable and a constant is that a variable
 -- has a rule that defines how it is replaced, while a constant does not
@@ -55,23 +54,27 @@ instance Show LSystem where
       angleLine = "Angle: "     <> angleString l
       rulesText = "Rules:\n"    <> rulesString l
 
+-- | start state of LSystem as a string
 startString :: LSystem -> String
 startString = start
 
+-- | rules of LSystem as strings
 rulesString :: LSystem -> String
 rulesString (LSystem _ rs _) =
   intercalate "\n" $ (\(k, v) -> [k] <> ": " <> v) <$> assocs rs
 
+-- | angle of LSystem
 angleString :: LSystem -> String
 angleString (LSystem _ _ drs) =
   case lookup '-' drs of
     Just (Turn f) -> show f
     _ -> "90.0"
 
+-- | variables of LSystem
 varsString :: LSystem -> String
 varsString (LSystem _ rs _) = intersperse ',' (keys rs)
 
--- Takes an LSystem and produces an infinite list of iterative expansions.
+-- | Takes an LSystem and produces an infinite list of iterative expansions.
 -- The nth element of the result is the list of Symbols obtained from
 -- expanding the LSystem n iterations.
 expand :: LSystem -> [[Symbol]]
@@ -80,51 +83,53 @@ expand (LSystem initial rs td) =
   where
     app = concatMap (\s -> findWithDefault [s] s rs)
 
--- base draw rules (no rules at all)
+-- | base draw rules (no rules at all)
 baseDrawRule :: DrawRules
 baseDrawRule = empty
 
--- makes a draw rule (associates a character to a symbol)
+-- | makes a draw rule (associates a character to a symbol)
 makeDrawRule :: Char -> Symbol -> DrawRules
 makeDrawRule = singleton
 
--- combines two sets of draw rules into one set of draw rules
+-- | combines two sets of draw rules into one set of draw rules
 combineDrawRules :: DrawRules -> DrawRules -> DrawRules
 combineDrawRules = (<>)
 
--- forward draw rule, relates 'F' to Forward
+-- | forward draw rule, relates 'F' to Forward
 fDrawRule :: DrawRules
 fDrawRule = makeDrawRule 'F' Forward
 
--- push state draw rule, relates '[' to saving state
+-- | push state draw rule, relates '[' to saving state
 lBracketDrawRule :: DrawRules
 lBracketDrawRule = makeDrawRule '[' PushState
 
--- pop state draw rule, relates ']' to popping most recent state
+-- | pop state draw rule, relates ']' to popping most recent state
 rBracketDrawRule :: DrawRules
 rBracketDrawRule = makeDrawRule ']' PopState
 
--- plus draw rule, relates '+' to turning by an angle a
+-- | plus draw rule, relates '+' to turning by an angle a
 makePlusDrawRule :: Float -> DrawRules
 makePlusDrawRule a = makeDrawRule '+' (Turn a)
 
--- minus draw rule, relates '-' to turning by an angle a
+-- | minus draw rule, relates '-' to turning by an angle a
 makeMinusDrawRule :: Float -> DrawRules
 makeMinusDrawRule a = makeDrawRule '-' (Turn a)
 
--- increase angle draw rule, relates '<' to changing global angle adjustment by an angle a
+-- | increase angle draw rule, relates '<' to changing global angle
+-- adjustment by an angle a
 makeIncAngleRule :: Float -> DrawRules
 makeIncAngleRule a = makeDrawRule '<' (AdjAngle a)
 
--- decrease angle draw rule, relates '>' to changing global angle adjustment by an angle a
+-- | decrease angle draw rule, relates '>' to changing global angle
+-- adjustment by an angle a
 makeDecAngleRule :: Float -> DrawRules
 makeDecAngleRule a = makeDrawRule '>' (AdjAngle a)
 
--- angle adjustment draw rules
+-- | angle adjustment draw rules
 makeAdjAngleRule :: Float -> DrawRules
 makeAdjAngleRule a = makeIncAngleRule (-a) <> makeDecAngleRule a
 
--- default draw rules are the most common rules, these relate
+-- | default draw rules are the most common rules, these relate
 -- 'F' to Forward, '[' to push state, ']' to pop state, '+' and '-' to turning
 -- by complementary angles
 makeDefaultDrawRules :: Float -> DrawRules
@@ -132,19 +137,19 @@ makeDefaultDrawRules a = fDrawRule <> lBracketDrawRule <> rBracketDrawRule <>
                            makePlusDrawRule (-a) <> makeMinusDrawRule a
 
 
--- base rule (no rules)
+-- | base rule (no rules)
 baseRule :: Rules
 baseRule = empty
 
--- makes a rule
+-- | makes a rule
 makeRule :: Char -> String -> Rules
 makeRule = singleton
 
--- combine two sets of rules into one set of rules
+-- | combine two sets of rules into one set of rules
 combineRules :: Rules -> Rules -> Rules
 combineRules = (<>)
 
--- zipMap keys values
+-- | zipMap keys values
 -- takes a list of keys and a list of values and returns
 -- a map that links each key in the first list to its
 -- corresponding value in the second list
@@ -171,6 +176,7 @@ instance Arbitrary LSystem where
       return $ insert 'Y' Forward $ insert 'X' Forward (makeDefaultDrawRules f)
   shrink = undefined
 
+-- | holds the string representation of an LSystem
 data LSysComps = LSysComps {lscStart :: String, lscRules :: String,
                             lscVars :: String, lscAngle :: String}
 
@@ -183,7 +189,7 @@ instance Monoid LSysComps where
         | b == "" = a
         | otherwise = b
 
--- Gets an LSystem from a set of user strings
+-- | Gets an LSystem from a set of user strings
 -- getLSystem start rules variables angle
 -- _start_ is simply the starting string (all whitespaces are ignored)
 -- _rules_ is a 'text box' of rules of this form:
@@ -214,6 +220,3 @@ getLSystem (LSysComps st rs variables angle) = LSystem st' recRules drawRules wh
         Just f -> makeDefaultDrawRules f
         Nothing -> makeDefaultDrawRules 90.0
     variables' = filter (\c -> not (isSpace c) && c /= ',') variables
---getLSystem _ = LSystem "" baseRule baseDrawRule
-
-  
