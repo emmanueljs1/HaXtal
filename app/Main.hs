@@ -42,8 +42,19 @@ main = do
    putStrLn "1: only turns"
    putStrLn "2: turns and pushes/pops"
    putStrLn "3: turns and angle increases/decreases"
+   putStrLn "4: Sierpinski"
+   putStrLn "5: Dragon"
+   putStrLn "6: Dragon with angle and line increases"
+   putStrLn "7: Hilbert"
+   putStrLn "8: Gosper"
+   putStrLn "9: Sierpinski Arrowhead"
+   putStrLn "10: Plant"
+   putStrLn "11: Koch Lake"
    s <- getLine
    let op = fromMaybe 0 (readMaybe s)
    lsys <- generate (resize op arbitrary)
-   let pic = if op < 4 then drawPicture 6 lsys else samplePictures !! (op - 4)
+   let pic
+         | op < 4 = drawPicture 6 lsys
+         | op < 12 = samplePictures !! (op - 4)
+         | otherwise = drawPicture 3 kochLake
    display window background pic
