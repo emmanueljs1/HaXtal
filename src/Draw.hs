@@ -4,7 +4,6 @@ module Draw where
 import LSystem
 import Control.Monad.Trans.State.Lazy
 import Data.Monoid hiding (getAll)
-import Numeric.Limits
 
 -- | represents a bounding box over a shape
 data BoundingBox =
@@ -136,3 +135,26 @@ getNext PopState     = do
     (s@(curPos, _, _, _) : states) -> do
       put (s : states)
       return curPos
+
+-- from Numeric.Limits source code (package cannot be found
+-- using the reflex-platform)
+
+-- | The maximum finite value for the type.
+{-# SPECIALIZE maxValue :: Double #-}
+{-# SPECIALIZE maxValue :: Float #-}
+maxValue :: (RealFloat a) => a
+maxValue = x
+  where n = floatDigits x
+        b = floatRadix x
+        (_, u) = floatRange x
+        x = encodeFloat (b^n - 1) (u - n)
+
+-- | The minimum (positive) normalized value for the type.
+{-# SPECIALIZE minValue :: Double #-}
+{-# SPECIALIZE minValue :: Float #-}
+minValue :: (RealFloat a) => a
+minValue = x
+  where n = floatDigits x
+        b = floatRadix x
+        (l, _) = floatRange x
+        x = encodeFloat (b^n - 1) (l - n - 1)
