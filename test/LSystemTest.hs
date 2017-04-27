@@ -3,5 +3,11 @@ module LSystemTest where
 import LSystem
 import Test.HUnit
 
-t :: Test
-t = undefined
+testExpand :: Test
+testExpand =
+  TestList [
+            "no start" ~: expand (LSystem "" baseRule baseDrawRule) ~?= []
+           ]
+
+main :: IO ()
+main = undefined
