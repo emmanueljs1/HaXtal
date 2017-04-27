@@ -17,6 +17,7 @@ import Control.Monad
 data Symbol = Forward     -- draw forward
             | Turn Float  -- turn the given angle
             | AdjAngle Float    -- change global angle adjustment
+            | AdjLen Float      -- change global line length
             | PushState   -- save the current position and angle
             | PopState    -- access the most recently pushed position and angle
             | BOOP        -- TODO: what is BOOP
@@ -113,6 +114,10 @@ makePlusDrawRule a = makeDrawRule '+' (Turn a)
 makeMinusDrawRule :: Float -> DrawRules
 makeMinusDrawRule a = makeDrawRule '-' (Turn a)
 
+-- turn draw rules
+makeTurnDrawRule :: Float -> DrawRules
+makeTurnDrawRule a = makePlusDrawRule (-a) <> makeMinusDrawRule a
+
 -- increase angle draw rule, relates '<' to changing global angle adjustment by an angle a
 makeIncAngleRule :: Float -> DrawRules
 makeIncAngleRule a = makeDrawRule '<' (AdjAngle a)
@@ -125,12 +130,24 @@ makeDecAngleRule a = makeDrawRule '>' (AdjAngle a)
 makeAdjAngleRule :: Float -> DrawRules
 makeAdjAngleRule a = makeIncAngleRule (-a) <> makeDecAngleRule a
 
+-- increase line length draw rule, relates '(' to changing global line length by a float a
+makeIncLenRule :: Float -> DrawRules
+makeIncLenRule a = makeDrawRule '(' (AdjLen a)
+
+-- decrease line length draw rule, relates ')' to changing global line length by a float a
+makeDecLenRule :: Float -> DrawRules
+makeDecLenRule a = makeDrawRule ')' (AdjLen a)
+
+-- line length draw rules
+makeAdjLenRule :: Float -> DrawRules
+makeAdjLenRule a = makeIncLenRule a <> makeDecLenRule (-a)
+
 -- default draw rules are the most common rules, these relate
 -- 'F' to Forward, '[' to push state, ']' to pop state, '+' and '-' to turning
 -- by complementary angles
 makeDefaultDrawRules :: Float -> DrawRules
 makeDefaultDrawRules a = fDrawRule <> lBracketDrawRule <> rBracketDrawRule <>
-                           makePlusDrawRule (-a) <> makeMinusDrawRule a
+                         makeTurnDrawRule a
 
 
 -- base rule (no rules)

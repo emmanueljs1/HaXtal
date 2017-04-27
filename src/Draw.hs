@@ -36,6 +36,8 @@ class Vector a where
                 where
                   x = getX v
                   y = getY v
+  mulSV :: Float -> a -> a
+  mulSV s v = makeV (s * getX v, s * getY v)
 
 newtype Direction = Direction (Float, Float) deriving (Show, Eq)
 
@@ -60,10 +62,10 @@ getPaths :: Int -> LSystem -> [[Point]]
 getPaths depth lsys = removeBad $ start : rest where
   start = Point (0.0, 0.0)
   rest = getAll (expand lsys !! depth) initVector
-  initVector = [(Point (0.0, 0.0), Direction (0.0, -1.0), 0)]
+  initVector = [(Point (0.0, 0.0), Direction (0.0, -1.0), 0, 1)]
 
 --
-getAll :: [Symbol] -> [(Point, Direction, Float)] -> [Point]
+getAll :: [Symbol] -> [(Point, Direction, Float, Float)] -> [Point]
 getAll [] _        = []
 getAll (s : ss) st = val : getAll ss nst
                      where
@@ -92,29 +94,35 @@ removeBad pts = ln : removeBad remPts
                   (ln, remPts) = getNextLine pts
 
 --
-getNext :: Symbol -> State [(Point, Direction, Float)] Point
-getNext Forward        = do ((curPos, curVec, adjAngle) : states) <- get
-                            let newPos = curPos >+ curVec
-                            put ((newPos, curVec, adjAngle) : states)
+getNext :: Symbol -> State [(Point, Direction, Float, Float)] Point
+getNext Forward        = do ((curPos, curVec, adjAngle, linLen) : states) <- get
+                            let newPos = curPos >+ (mulSV linLen curVec)
+                            put ((newPos, curVec, adjAngle, linLen) : states)
                             return newPos
-getNext (Turn a)       = do ((curPos, curVec, adjAngle) : states) <- get
+getNext (Turn a)       = do ((curPos, curVec, adjAngle, linLen) : states) <- get
                             let newVec = rotateV (a + adjAngle) curVec
-                            put ((curPos, newVec, adjAngle) : states)
+                            put ((curPos, newVec, adjAngle, linLen) : states)
                             return curPos
-getNext (AdjAngle a)   = do ((curPos, curVec, adjAngle) : states) <- get
+getNext (AdjAngle a)   = do ((curPos, curVec, adjAngle, linLen) : states) <- get
                             let newAngle = adjAngle + a
-                            put ((curPos, curVec, newAngle) : states)
+                            put ((curPos, curVec, newAngle, linLen) : states)
                             return curPos
-getNext PushState      = do ((curPos, curVec, adjAngle) : states) <- get
-                            put ((curPos, curVec, adjAngle) : (curPos, curVec, adjAngle) : states)
+getNext (AdjLen a)     = do ((curPos, curVec, adjAngle, linLen) : states) <- get
+                            let newLen = linLen + a
+                            put ((curPos, curVec, adjAngle, newLen) : states)
+                            return curPos
+getNext PushState      = do ((curPos, curVec, adjAngle, linLen) : states) <- get
+                            put ((curPos, curVec, adjAngle, linLen) : (curPos, curVec, adjAngle, linLen) : states)
                             return curPos
 
-getNext PopState       = do (_ : (curPos, curVec, adjAngle) : states) <- get
-                            put ((curPos, curVec, adjAngle) : states)
-                            return $ curPos >+ Point (-10000, -10000)
-
---modify (\curStateL -> if length curStateL > 1
---                      then tail curStateL else curStateL)
+getNext PopState       = do stateL <- get
+                            case stateL of
+                              (_ : (curPos, curVec, adjAngle, linLen) : states) ->
+                                do put ((curPos, curVec, adjAngle, linLen) : states)
+                                   return $ curPos >+ Point (-10000, -10000)
+                              ((curPos, curVec, adjAngle, linLen) : states) ->
+                                do put ((curPos, curVec, adjAngle, linLen) : states)
+                                   return $ curPos
 
 
 -- From Numeric.Limits, import isn't working
