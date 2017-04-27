@@ -22,3 +22,14 @@ Rules:
 F: FYX]-
 X: YX[FYX
 Y: XFY]YF[[]
+
+
+Randomly Generated Plant!
+Start: FYF
+Variables: F, X, Y
+Angle: 21.121838
+Levels: 6
+Rules:
+F: ]X
+X: [F
+Y: F(F]FY[-Y[

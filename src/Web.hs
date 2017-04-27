@@ -26,7 +26,7 @@ main = mainWidget $ do
         u = T.unpack
         p = T.pack
     el "h1" $ text "Welcome to HaXtal!"
-    el "h2" $ text "Please select a fractal to display:"
+    el "h2" $ text "Please select an LSystem to display:"
     dd <- dropdown 1 dropdownOptions def
 
     -- Generates an infinite list of lsystems
@@ -80,7 +80,7 @@ main = mainWidget $ do
     -- map the value of the new dynamic to the action of the 'generate'
     -- button being pressed. Then we create and draw the lsystem, lift
     -- to an IO instance and perform the event.
-  
+
     performEvent_ $ liftIO . drawPaths ctx . getPathsForLSysComps
                 <$> tagPromptlyDyn (mconcat
                   [ (\x -> mempty {lscStart = x})  . u <$> value startText
