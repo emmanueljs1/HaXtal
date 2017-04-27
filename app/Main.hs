@@ -7,13 +7,13 @@ import Draw
 import Test.QuickCheck
 
 -- | Code for drawing curves
-
 toGlossPoint :: Draw.Point -> Graphics.Gloss.Point
 toGlossPoint p = (getX p, getY p)
 
 -- draws a Picture from an LSystem
 drawPicture :: Int -> LSystem -> Picture
-drawPicture depth lsys = pictures (line <$> (toGlossPoint <$>) <$> getPaths depth lsys)
+drawPicture depth lsys =
+  pictures (line <$> (toGlossPoint <$>) <$> getPaths depth lsys)
 
 window :: Display
 window = InWindow "LSystems!" (200, 200) (10, 10)
@@ -46,9 +46,8 @@ drawingSunflower :: Picture
 drawingSunflower = drawPicture 6 sunflower
 
 main :: IO ()
-main = display window background drawingDragon2
--- main = do
---   lsys <- generate arbitrary
---   print lsys
---   print $ getDrawBounds (concat $ getPaths 6 lsys)
---   display window background (drawPicture 6 lsys)
+main = do
+  lsys <- generate arbitrary
+  print lsys
+  print $ getDrawBounds (concat $ getPaths 6 lsys)
+  display window background (drawPicture 6 lsys)
