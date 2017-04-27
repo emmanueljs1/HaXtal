@@ -163,6 +163,7 @@ makeDefaultDrawRules a = forwardDrawRule <> jumpDrawRule <>
                           lBracketDrawRule <> rBracketDrawRule <>
                           makeTurnDrawRule a
 
+-- | Creates draw rules with the additional variables X and Y
 additionalVariableDrawRules :: Float -> DrawRules
 additionalVariableDrawRules f =
   insert 'X' Forward $ insert 'Y' Forward (makeDefaultDrawRules f)
@@ -188,37 +189,63 @@ zipMap = foldr combine (const empty) where
   combine x acc (h : t) = insert x h (acc t)
   combine _ _ [] = empty
 
+-- | arbitrary defined for an LSystem
+-- the resize function actually determines which arbitrary instance is used!
+-- resize 0 arbitrary is a regular LSystem that can use all constants
+-- resize 1 arbitrary only uses turns
+-- resuze 2 arbitrary only uses turns and pushes/pops
+-- resize 3 arbitrary only uses turns and increase/decrease angles
+-- there is also a 5% that the LSystem will include jumping in its rules
 instance Arbitrary LSystem where
-  arbitrary = liftM3 LSystem arbStart arbRules arbDrawRules where
-    variables = ['F', 'X', 'Y']
-    drawable = frequency drawableFrequencies where
-      drawableFrequencies =
-        [
-          (5, elements ['+', '-', 'F', 'X', 'Y']), 
-          (3, elements ['[', ']']),
-          (1, elements ['(', ')'])
-        ]
-    combination = comb where
-      chooseVariable = elements variables
-      randomList = resize 10 $ listOf drawable
-      comb = do
-        l <- liftM2 (:) chooseVariable randomList
-        shuffle l
-    arbStart = combination
-    combination1 = comb where
-      chooseVariable = elements variables
-      randomList = resize 10 $ listOf1 drawable
-      comb = do
-        l <- liftM2 (:) chooseVariable randomList
-        shuffle l
-    arbRules = do
-      rulesToMap <- vectorOf 3 $ resize 5 combination1
-      return $ zipMap variables rulesToMap
-    arbDrawRules = do
-      f <- elements [1.0..359.0]
-      len <- elements [0.1..0.5]
-      return (additionalVariableDrawRules f <> makeAdjLenRule len)
-  shrink = undefined
+  arbitrary = sized chooseArbitraryLSystem where
+    drawableFrequencies 1 =
+      [
+        (1, elements ['+', '-', 'F', 'X', 'Y'])
+      ]
+    drawableFrequencies 2 =
+      [
+        (3, elements ['+', '-', 'F', 'X', 'Y']),
+        (1, elements ['[', ']'])
+      ]
+    drawableFrequencies 3 =
+      [
+        (3, elements ['+', '-', 'F', 'X', 'Y']),
+        (1, elements ['(', ')'])
+      ]
+    drawableFrequencies _ =
+      [
+        (6, elements ['+', '-', 'F', 'X', 'Y']),
+        (3, elements ['[', ']']),
+        (1, elements ['(', ')'])
+      ]
+    chooseArbitraryLSystem i =
+      liftM3 LSystem arbStart arbRules arbDrawRules where
+        variables = ['F', 'X', 'Y']
+        drawable =
+          frequency [
+                      (19, frequency (drawableFrequencies i)),
+                      (1, elements ['f'])
+                    ]
+        combination = comb where
+          chooseVariable = elements variables
+          randomList = resize 10 $ listOf drawable
+          comb = do
+            l <- liftM2 (:) chooseVariable randomList
+            shuffle l
+        arbStart = combination
+        combination1 = comb where
+          chooseVariable = elements variables
+          randomList = resize 10 $ listOf1 drawable
+          comb = do
+            l <- liftM2 (:) chooseVariable randomList
+            shuffle l
+        arbRules = do
+          rulesToMap <- vectorOf 3 $ resize 5 combination1
+          return $ zipMap variables rulesToMap
+        arbDrawRules = do
+          f <- choose (0, 2 * pi)
+          len <- choose (0.1, 0.5)
+          return (additionalVariableDrawRules f <> makeAdjLenRule len)
 
 -- | holds the string representation of an LSystem
 data LSysComps = LSysComps {lscStart :: String, lscRules :: String,
@@ -260,10 +287,12 @@ getLSystem (LSysComps st rs variables angle _) = LSystem st' recRules drawRules
         _ -> parseLines m ss
     drawRules = getVariables variables' <> defaultDrawRules
     getVariables [] = empty
+    getVariables ('f' : vs) = insert 'f' Jump (getVariables vs)
     getVariables (v : vs) = insert v Forward (getVariables vs)
     defaultDrawRules =
       case readMaybe angle of
         Just f -> makeDefaultDrawRules $ toRad f
         Nothing -> makeDefaultDrawRules $ toRad 90.0
     toRad = (/ 180.0) . (* pi)
-    variables' = filter (\c -> not (isSpace c) && c /= ',') variables
+    variables' =
+      filter (\c -> not (isSpace c) && c /= ',') variables <> filter isLetter st

@@ -8,4 +8,4 @@ import qualified LSystemTest as LSystemTest
 main :: IO ()
 main = do
   DrawTest.main
-  LSystem.main
+  LSystemTest.main
