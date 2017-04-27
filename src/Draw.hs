@@ -4,6 +4,8 @@ module Draw where
 import LSystem
 import Control.Monad.Trans.State.Lazy
 import Data.Monoid hiding (getAll)
+import Test.QuickCheck
+import Control.Monad
 
 -- | represents what a given point should be drawn as
 data DrawCommand = NOP | Pt | NewLine deriving (Show, Eq)
@@ -160,3 +162,7 @@ minValue = x
         b = floatRadix x
         (l, _) = floatRange x
         x = encodeFloat (b^n - 1) (l - n - 1)
+
+-- | Arbitrary instances
+instance Arbitrary Point where
+  arbitrary = Point <$> liftM2 (,) arbitrary arbitrary
