@@ -14,6 +14,7 @@ import Control.Monad
 
 -- | A symbol represents an action to be performed
 data Symbol = Forward     -- draw forward
+            | Jump        -- move pen forward without drawing
             | Turn Float  -- turn the given angle
             | AdjAngle Float    -- change global angle adjustment
             | AdjLen Float      -- change global line length
@@ -97,8 +98,12 @@ combineDrawRules :: DrawRules -> DrawRules -> DrawRules
 combineDrawRules = (<>)
 
 -- | forward draw rule, relates 'F' to Forward
-fDrawRule :: DrawRules
-fDrawRule = makeDrawRule 'F' Forward
+forwardDrawRule :: DrawRules
+forwardDrawRule = makeDrawRule 'F' Forward
+
+-- | jump draw rule, relates 'f' to Jump
+jumpDrawRule :: DrawRules
+jumpDrawRule = makeDrawRule 'f' Jump
 
 -- | push state draw rule, relates '[' to saving state
 lBracketDrawRule :: DrawRules
@@ -115,7 +120,6 @@ makePlusDrawRule a = makeDrawRule '+' (Turn a)
 -- | minus draw rule, relates '-' to turning by an angle a
 makeMinusDrawRule :: Float -> DrawRules
 makeMinusDrawRule a = makeDrawRule '-' (Turn a)
-
 
 -- turn draw rules
 makeTurnDrawRule :: Float -> DrawRules
@@ -153,8 +157,9 @@ makeAdjLenRule a = makeIncLenRule a <> makeDecLenRule (-a)
 -- 'F' to Forward, '[' to push state, ']' to pop state, '+' and '-' to turning
 -- by complementary angles
 makeDefaultDrawRules :: Float -> DrawRules
-makeDefaultDrawRules a = fDrawRule <> lBracketDrawRule <> rBracketDrawRule <>
-                         makeTurnDrawRule a
+makeDefaultDrawRules a = forwardDrawRule <> jumpDrawRule <>
+                          lBracketDrawRule <> rBracketDrawRule <>
+                          makeTurnDrawRule a
 
 additionalVariableDrawRules :: Float -> DrawRules
 additionalVariableDrawRules f =

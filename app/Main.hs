@@ -45,9 +45,13 @@ drawingPlant = drawPicture 6 plant
 drawingSunflower :: Picture
 drawingSunflower = drawPicture 6 sunflower
 
+drawingKochLake :: Picture
+drawingKochLake = drawPicture 3 kochLake
+
 main :: IO ()
-main = do
-  lsys <- generate arbitrary
-  print lsys
-  print $ getDrawBounds (concat $ getPaths 6 lsys)
-  display window background (drawPicture 6 lsys)
+main = display window background drawingKochLake
+-- main = do
+--   lsys <- generate arbitrary
+--   print lsys
+--   print $ getDrawBounds (concat $ getPaths 6 lsys)
+--   display window background (drawPicture 6 lsys)

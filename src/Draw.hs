@@ -5,6 +5,9 @@ import LSystem
 import Control.Monad.Trans.State.Lazy
 import Data.Monoid hiding (getAll)
 
+-- | represents what a given point should be drawn as
+data DrawCommand = NOP | Pt | NewLine deriving (Show, Eq)
+
 -- | represents a bounding box over a shape
 data BoundingBox =
   BoundingBox {
@@ -58,83 +61,82 @@ instance Vector Point where
   getY (Point p) = snd p
   getP (Point p) = p
 
-
+-- | Gets bounding box of a drawing for use in fitting the drawing in a display
 getDrawBounds :: [Point] -> BoundingBox
 getDrawBounds = foldr ((<>) . makeBoundingBox) mempty
 
 -- | Gets vector paths that represent visualization of an LSystem
 -- based on an input depth that determines the levels of recursion
 getPaths :: Int -> LSystem -> [[Point]]
-getPaths depth lsys = removeBad $ start : rest where
-  start = Point (0.0, 0.0)
+getPaths depth lsys = splitLines $ start : rest where
+  start = (Pt, Point (0.0, 0.0))
   rest = getAll (expand lsys !! depth) initVector
   initVector = [(Point (0.0, 0.0), Direction (0.0, -1.0), 0, 1)]
 
 -- | gets list of all points from list of symbols
-getAll :: [Symbol] -> [(Point, Direction, Float, Float)] -> [Point]
+getAll :: [Symbol] -> [(Point, Direction, Float, Float)] -> [(DrawCommand, Point)]
 getAll [] _        = []
 getAll (s : ss) st = val : getAll ss nst
                      where
                        (val, nst) = runState (getNext s) st
 
--- | maps a function over a two tuple
--- can be used for rounding angles when 90deg,
--- e.g. mapTuple (fromIntegral . round) $ rotateV (pi / 2) curVec
-mapTuple :: (a -> b) -> (a, a) -> (b, b)
-mapTuple f (x, y) = (f x, f y)
-
 -- | splits into two lists of points, separated
 -- determined by flag point
-getNextLine :: [Point] -> ([Point], [Point])
-getNextLine []            = ([], [])
-getNextLine (p : ps)
-              | getX p < -5000 = ([], p >+ Point (10000, 10000) : ps)
-              | otherwise     = (p : ln, remPts)
-              where
-                (ln, remPts) = getNextLine ps
+getNextLine :: [(DrawCommand, Point)] -> ([Point], [(DrawCommand, Point)])
+getNextLine []                 = ([], [])
+getNextLine ((dc, p) : ps) | dc == NOP     = (ln, remPts)
+                           | dc == Pt      = (p : ln, remPts)
+                           | dc == NewLine = ([] , (Pt, p) : ps)
+                           where
+                             (ln, remPts) = getNextLine ps
 
--- | removes points flagging state change
-removeBad :: [Point] -> [[Point]]
-removeBad []  = []
-removeBad pts = ln : removeBad remPts
+-- | splits list of (DrawCommand, Points) into separate lines for drawing
+splitLines :: [(DrawCommand, Point)] -> [[Point]]
+splitLines []  = []
+splitLines pts = ln : splitLines remPts
                 where
                   (ln, remPts) = getNextLine pts
 
 -- | get next state based on current symbol
-getNext :: Symbol -> State [(Point, Direction, Float, Float)] Point
+getNext :: Symbol -> State [(Point, Direction, Float, Float)] (DrawCommand, Point)
 getNext Forward    = do
   ((curPos, curVec, adjAngle, linLen) : states) <- get
   let newPos = curPos >+ mulSV linLen curVec
   put ((newPos, curVec, adjAngle, linLen) : states)
-  return newPos
+  return (Pt, newPos)
+getNext Jump       = do
+  ((curPos, curVec, adjAngle, linLen) : states) <- get
+  let newPos = curPos >+ mulSV linLen curVec
+  put ((newPos, curVec, adjAngle, linLen) : states)
+  return (NewLine, newPos)
 getNext (Turn a)   = do
   ((curPos, curVec, adjAngle, linLen) : states) <- get
   let newVec = rotateV (a + adjAngle) curVec
   put ((curPos, newVec, adjAngle, linLen) : states)
-  return curPos
+  return (NOP, curPos)
 getNext (AdjAngle a) = do
   ((curPos, curVec, adjAngle, linLen) : states) <- get
   let newAngle = adjAngle + a
   put ((curPos, curVec, newAngle, linLen) : states)
-  return curPos
+  return (NOP, curPos)
 getNext (AdjLen a)   = do
   ((curPos, curVec, adjAngle, linLen) : states) <- get
   let newLen = linLen + a
   put ((curPos, curVec, adjAngle, newLen) : states)
-  return curPos
+  return (NOP, curPos)
 getNext PushState    = do
   (s@(curPos, _, _, _) : states) <- get
   put (s : s : states)
-  return curPos
+  return (NOP, curPos)
 getNext PopState     = do
   stateL <- get
   case stateL of
     (_ : s@(curPos, _, _, _) : states) -> do
       put (s : states)
-      return $ curPos >+ Point (-10000, -10000)
+      return $ (NewLine, curPos)
     (s@(curPos, _, _, _) : states) -> do
       put (s : states)
-      return curPos
+      return (NOP, curPos)
 
 -- from Numeric.Limits source code (package cannot be found
 -- using the reflex-platform)

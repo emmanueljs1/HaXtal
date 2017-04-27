@@ -32,7 +32,7 @@ dragon = LSystem "FX" (r1 <> r2) (makeDefaultDrawRules (pi / 2)) where
   r1 = makeRule 'X' "X+YF+"
   r2 = makeRule 'Y' "-FX-Y"
 
--- Dragon Fractal with angle growing and line length growing
+-- Dragon Fractal 2 - Demonstrates adjust line length and adjust angle
 dragon2 :: LSystem
 dragon2 = LSystem "FX" (r1 <> r2)
             (makeDefaultDrawRules (pi / 2) <>
@@ -61,6 +61,12 @@ plant :: LSystem
 plant = LSystem "X" (r1 <> r2) (makeDefaultDrawRules (25 * pi / 180)) where
   r1 = makeRule 'X' "F-[[X]+X]+F[+FX]-X"
   r2 = makeRule 'F' "FF"
+
+-- Koch Lake - Demonstrates jump command
+kochLake :: LSystem
+kochLake = LSystem "F+F+F+F" (r1 <> r2) (makeDefaultDrawRules (pi / 2)) where
+  r1 = makeRule 'F' "F+f-FF+F+FF+Ff+FF-f+FF-F-FF-Ff-FFF"
+  r2 = makeRule 'f' "ffffff"
 
 -- Sunflower Curve -- Randomly generated using arbitrary!
 sunflower :: LSystem
