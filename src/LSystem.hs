@@ -181,13 +181,21 @@ instance Arbitrary LSystem where
     variables = ['F', 'X', 'Y']
     combination = comb where
       chooseVariable = elements variables
-      randomList = resize 10 . listOf $ elements ['F', 'X', 'Y', '+', '-']
+      randomList =
+        resize 10 . listOf $ elements ['F', 'X', 'Y', '+', '-', '[', ']']
       comb = do
         l <- liftM2 (:) chooseVariable randomList
         shuffle l
     arbStart = combination
+    combination1 = comb where
+      chooseVariable = elements variables
+      randomList =
+        resize 10 . listOf1 $ elements ['F', 'X', 'Y', '+', '-', '[', ']']
+      comb = do
+        l <- liftM2 (:) chooseVariable randomList
+        shuffle l
     arbRules = do
-      rulesToMap <- vectorOf 3 $ resize 5 combination
+      rulesToMap <- vectorOf 3 $ resize 5 combination1
       return $ zipMap variables rulesToMap
     arbDrawRules = do
       f <- elements [1.0..359.0]

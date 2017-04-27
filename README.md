@@ -26,29 +26,20 @@ L : SYS
 S : F|+[F->Y[S]]
 Y : [--F-F+FY]+
 
-start = "Y+FY-XX-" rules = [('F',"F++F"),('X',"F"),('Y',"F+")]
-
-Start: YY+X+X--XX
+<b>VERY COOL FRACTAL, RANDOMLY GENERATED</b>
+Start: Y
 Variables: F,X,Y
-Angle: 122.0
+Angle: 91.0
 Rules:
- F: XY+X---+
- X: YXYXFX
- Y: X+YXF
+F: YX
+X: +[[-F
+Y: F-+-+FYX]
 
-Start: X-YXYX+-F
+CHRISTMAS WREATH, RANDMOLY GENERATED
+Start: XX+
 Variables: F,X,Y
-Angle: 135.0
+Angle: 283.0
 Rules:
-  F: FYF-XX
-  X: FY+Y
-  Y: YF+FF
-
-<b> twin circles </b>
-  Start: XX+
-  Variables: F,X,Y
-  Angle: 251.0
-  Rules:
-   F: Y+--
-   X: X-X
-   Y: X+
+F: FYX]-
+X: YX[FYX
+Y: XFY]YF[[]

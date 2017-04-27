@@ -103,30 +103,36 @@ removeBad pts = ln : removeBad remPts
 
 -- | get next state based on current symbol
 getNext :: Symbol -> State [(Point, Direction, Float, Float)] Point
-getNext Forward        = do ((curPos, curVec, adjAngle, linLen) : states) <- get
-                            let newPos = curPos >+ (mulSV linLen curVec)
-                            put ((newPos, curVec, adjAngle, linLen) : states)
-                            return newPos
-getNext (Turn a)       = do ((curPos, curVec, adjAngle, linLen) : states) <- get
-                            let newVec = rotateV (a + adjAngle) curVec
-                            put ((curPos, newVec, adjAngle, linLen) : states)
-                            return curPos
-getNext (AdjAngle a)   = do ((curPos, curVec, adjAngle, linLen) : states) <- get
-                            let newAngle = adjAngle + a
-                            put ((curPos, curVec, newAngle, linLen) : states)
-                            return curPos
-getNext (AdjLen a)     = do ((curPos, curVec, adjAngle, linLen) : states) <- get
-                            let newLen = linLen + a
-                            put ((curPos, curVec, adjAngle, newLen) : states)
-                            return curPos
-getNext PushState      = do ((curPos, curVec, adjAngle, linLen) : states) <- get
-                            put ((curPos, curVec, adjAngle, linLen) : (curPos, curVec, adjAngle, linLen) : states)
-                            return curPos
-getNext PopState       = do stateL <- get
-                            case stateL of
-                              (_ : (curPos, curVec, adjAngle, linLen) : states) ->
-                                do put ((curPos, curVec, adjAngle, linLen) : states)
-                                   return $ curPos >+ Point (-10000, -10000)
-                              ((curPos, curVec, adjAngle, linLen) : states) ->
-                                do put ((curPos, curVec, adjAngle, linLen) : states)
-                                   return $ curPos
+getNext Forward    = do
+  ((curPos, curVec, adjAngle, linLen) : states) <- get
+  let newPos = curPos >+ mulSV linLen curVec
+  put ((newPos, curVec, adjAngle, linLen) : states)
+  return newPos
+getNext (Turn a)   = do
+  ((curPos, curVec, adjAngle, linLen) : states) <- get
+  let newVec = rotateV (a + adjAngle) curVec
+  put ((curPos, newVec, adjAngle, linLen) : states)
+  return curPos
+getNext (AdjAngle a) = do
+  ((curPos, curVec, adjAngle, linLen) : states) <- get
+  let newAngle = adjAngle + a
+  put ((curPos, curVec, newAngle, linLen) : states)
+  return curPos
+getNext (AdjLen a)   = do
+  ((curPos, curVec, adjAngle, linLen) : states) <- get
+  let newLen = linLen + a
+  put ((curPos, curVec, adjAngle, newLen) : states)
+  return curPos
+getNext PushState    = do
+  (s@(curPos, _, _, _) : states) <- get
+  put (s : s : states)
+  return curPos
+getNext PopState     = do
+  stateL <- get
+  case stateL of
+    (_ : s@(curPos, _, _, _) : states) -> do
+      put (s : states)
+      return $ curPos >+ Point (-10000, -10000)
+    (s@(curPos, _, _, _) : states) -> do
+      put (s : states)
+      return curPos
