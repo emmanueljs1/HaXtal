@@ -19,7 +19,6 @@ data Symbol = Forward     -- draw forward
             | AdjAngle Float    -- change global angle adjustment
             | PushState   -- save the current position and angle
             | PopState    -- access the most recently pushed position and angle
-            | BOOP        -- TODO: what is BOOP
             deriving (Eq, Ord, Show)
 
 -- | In our framework, a _variable_ or a _constant_ can have a
