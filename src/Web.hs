@@ -104,8 +104,8 @@ drawPaths ::(MonadIO m) => DOM.CanvasRenderingContext2D -> [[Point]] -> m ()
 drawPaths ctx paths = do
   CVS.clearRect ctx 0 0 canvasWidth canvasHeight
   CVS.save ctx
-  (CVS.translate ctx) (minX dBounds * (-drawingScale)) $ minY dBounds * (-drawingScale)
-          -- ((- minX dBounds) * drawingScale) ((- minY dBounds) * drawingScale)
+  (CVS.translate ctx) (minX dBounds * (-drawingScale) + 30)
+                      $ minY dBounds * (-drawingScale) + 30
   CVS.beginPath ctx
   -- Draw every path in the lsystem
   traverse_ drawPath paths
@@ -127,18 +127,21 @@ dropdownOptions = constDyn $ (1 =: "Gosper")
                   <> (2 =: "Hilbert")
                   <> (3 =: "Sierpinski")
                   <> (4 =: "Dragon")
-                  <> (5 =: "Sierpinski Arrowhead")
-                  <> (6 =: "Plant")
-                  <> (7 =: "Sunflower")
+                  <> (5 =: "Dragon 2")
+                  <> (6 =: "Sierpinski Arrowhead")
+                  <> (7 =: "Plant")
+                  <> (8 =: "Sunflower")
+                  <> (9 =: "Koch Lake")
 
 lsysFromDD :: Integer -> LSystem
 lsysFromDD 1 = gosper
 lsysFromDD 2 = hilbert
 lsysFromDD 3 = sierpinski
 lsysFromDD 4 = dragon
-lsysFromDD 5 = sierpinskiArrowhead
-lsysFromDD 6 = plant
-lsysFromDD 7 = sunflower
-lsysFromDD _ = plant
+lsysFromDD 5 = dragon2
+lsysFromDD 6 = sierpinskiArrowhead
+lsysFromDD 7 = plant
+lsysFromDD 8 = sunflower
+lsysFromDD 9 = kochLake
 
 --------------------------------------------------------------------------------
