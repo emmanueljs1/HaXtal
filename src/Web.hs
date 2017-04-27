@@ -132,6 +132,7 @@ dropdownOptions = constDyn $ (1 =: "Gosper")
                   <> (7 =: "Plant")
                   <> (8 =: "Sunflower")
                   <> (9 =: "Koch Lake")
+                  <> (10 =: "Koch Curve")
 
 lsysFromDD :: Integer -> LSystem
 lsysFromDD 1 = gosper
@@ -143,5 +144,6 @@ lsysFromDD 6 = sierpinskiArrowhead
 lsysFromDD 7 = plant
 lsysFromDD 8 = sunflower
 lsysFromDD 9 = kochLake
+lsysFromDD 10 = kochCurve
 
 --------------------------------------------------------------------------------
