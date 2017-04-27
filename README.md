@@ -71,7 +71,7 @@ Contains tests for Draw.hs.
 - Reflex (Web only) <br>
 - Gloss (App only) <br>
 - QuickCheck <br>
-- HUnit
+- HUnit <br>
 
 
 This was a final project for CIS 552 at the University of Pennsylvania:
