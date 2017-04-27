@@ -16,9 +16,22 @@ import Data.Foldable
 import qualified GHCJS.DOM.JSFFI.Generated.CanvasRenderingContext2D as CVS
 import qualified GHCJS.DOM.Types as DOM
 import qualified GHCJS.DOM.JSFFI.Generated.HTMLCanvasElement as CVS
-
 main :: IO ()
-main = mainWidget $ do
+main = mainWidgetWithHead headElement bodyElement
+headElement :: IO ()
+headElement = do
+  styleSheet "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+  where
+    styleSheet link = elAttr "link" (Map.fromList [
+          ("rel", "stylesheet")
+        , ("type", "text/css")
+        , ("integrity", "sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u")
+        , ("crossorigin", "anonymous")
+        , ("href", link)
+      ]) $ return ()
+
+bodyElement :: IO ()
+bodyElement = mainWidget $ do
   el "h1" $ text "Welcome to HaXtal!"
   el "h2" $ text "Please select a fractal to display:"
   dd <- dropdown 1 ddOpts def
