@@ -204,12 +204,13 @@ instance Arbitrary LSystem where
 
 -- | holds the string representation of an LSystem
 data LSysComps = LSysComps {lscStart :: String, lscRules :: String,
-                            lscVars :: String, lscAngle :: String}
+                            lscVars :: String, lscAngle :: String,
+                            lscLevels :: String}
 
 instance Monoid LSysComps where
-  mempty = LSysComps "" "" "" ""
-  mappend (LSysComps s1 r1 v1 a1) (LSysComps s2 r2 v2 a2) =
-    LSysComps (t s1 s2) (t r1 r2) (t v1 v2) (t a1 a2)
+  mempty = LSysComps "" "" "" "" ""
+  mappend (LSysComps s1 r1 v1 a1 l1) (LSysComps s2 r2 v2 a2 l2) =
+    LSysComps (t s1 s2) (t r1 r2) (t v1 v2) (t a1 a2) (t l1 l2)
     where
       t a b
         | b == "" = a
@@ -229,7 +230,7 @@ instance Monoid LSysComps where
 -- _angle_ is just the angle for the LSystem, if an angle is not successfully
 -- read, the default value it is given is 90
 getLSystem :: LSysComps -> LSystem
-getLSystem (LSysComps st rs variables angle) = LSystem st' recRules drawRules where
+getLSystem (LSysComps st rs variables angle _) = LSystem st' recRules drawRules where
   st' = filter (not . isSpace) st
   recRules = parseLines empty allLines where
     allLines = filter (not . isSpace) <$> lines rs
