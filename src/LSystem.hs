@@ -14,6 +14,7 @@ import Control.Monad
 
 -- | A symbol represents an action to be performed
 data Symbol = Forward     -- draw forward
+            | Jump        -- move pen forward without drawing
             | Turn Float  -- turn the given angle
             | AdjAngle Float    -- change global angle adjustment
             | AdjLen Float      -- change global line length
@@ -97,8 +98,12 @@ combineDrawRules :: DrawRules -> DrawRules -> DrawRules
 combineDrawRules = (<>)
 
 -- | forward draw rule, relates 'F' to Forward
-fDrawRule :: DrawRules
-fDrawRule = makeDrawRule 'F' Forward
+forwardDrawRule :: DrawRules
+forwardDrawRule = makeDrawRule 'F' Forward
+
+-- | jump draw rule, relates 'f' to Jump
+jumpDrawRule :: DrawRules
+jumpDrawRule = makeDrawRule 'f' Jump
 
 -- | push state draw rule, relates '[' to saving state
 lBracketDrawRule :: DrawRules
@@ -115,7 +120,6 @@ makePlusDrawRule a = makeDrawRule '+' (Turn a)
 -- | minus draw rule, relates '-' to turning by an angle a
 makeMinusDrawRule :: Float -> DrawRules
 makeMinusDrawRule a = makeDrawRule '-' (Turn a)
-
 
 -- turn draw rules
 makeTurnDrawRule :: Float -> DrawRules
@@ -135,11 +139,13 @@ makeDecAngleRule a = makeDrawRule '>' (AdjAngle a)
 makeAdjAngleRule :: Float -> DrawRules
 makeAdjAngleRule a = makeIncAngleRule (-a) <> makeDecAngleRule a
 
--- increase line length draw rule, relates '(' to changing global line length by a float a
+-- increase line length draw rule, relates '(' to changing global line
+-- length by a float a
 makeIncLenRule :: Float -> DrawRules
 makeIncLenRule a = makeDrawRule '(' (AdjLen a)
 
--- decrease line length draw rule, relates ')' to changing global line length by a float a
+-- decrease line length draw rule, relates ')' to changing global
+-- line length by a float a
 makeDecLenRule :: Float -> DrawRules
 makeDecLenRule a = makeDrawRule ')' (AdjLen a)
 
@@ -151,9 +157,13 @@ makeAdjLenRule a = makeIncLenRule a <> makeDecLenRule (-a)
 -- 'F' to Forward, '[' to push state, ']' to pop state, '+' and '-' to turning
 -- by complementary angles
 makeDefaultDrawRules :: Float -> DrawRules
-makeDefaultDrawRules a = fDrawRule <> lBracketDrawRule <> rBracketDrawRule <>
-                         makeTurnDrawRule a
+makeDefaultDrawRules a = forwardDrawRule <> jumpDrawRule <>
+                          lBracketDrawRule <> rBracketDrawRule <>
+                          makeTurnDrawRule a
 
+additionalVariableDrawRules :: Float -> DrawRules
+additionalVariableDrawRules f =
+  insert 'X' Forward $ insert 'Y' Forward (makeDefaultDrawRules f)
 
 -- | base rule (no rules)
 baseRule :: Rules
@@ -179,18 +189,23 @@ zipMap = foldr combine (const empty) where
 instance Arbitrary LSystem where
   arbitrary = liftM3 LSystem arbStart arbRules arbDrawRules where
     variables = ['F', 'X', 'Y']
+    drawable = frequency drawableFrequencies where
+      drawableFrequencies =
+        [
+          (5, elements ['+', '-', 'F', 'X', 'Y']), 
+          (3, elements ['[', ']']),
+          (1, elements ['(', ')'])
+        ]
     combination = comb where
       chooseVariable = elements variables
-      randomList =
-        resize 10 . listOf $ elements ['F', 'X', 'Y', '+', '-', '[', ']']
+      randomList = resize 10 $ listOf drawable
       comb = do
         l <- liftM2 (:) chooseVariable randomList
         shuffle l
     arbStart = combination
     combination1 = comb where
       chooseVariable = elements variables
-      randomList =
-        resize 10 . listOf1 $ elements ['F', 'X', 'Y', '+', '-', '[', ']']
+      randomList = resize 10 $ listOf1 drawable
       comb = do
         l <- liftM2 (:) chooseVariable randomList
         shuffle l
@@ -199,7 +214,8 @@ instance Arbitrary LSystem where
       return $ zipMap variables rulesToMap
     arbDrawRules = do
       f <- elements [1.0..359.0]
-      return $ insert 'Y' Forward $ insert 'X' Forward (makeDefaultDrawRules f)
+      len <- elements [0.1..0.5]
+      return (additionalVariableDrawRules f <> makeAdjLenRule len)
   shrink = undefined
 
 -- | holds the string representation of an LSystem
@@ -222,8 +238,8 @@ instance Monoid LSysComps where
 -- _rules_ is a 'text box' of rules of this form:
 --   X : XY+Y
 --   Y : FYF
--- _variables_ are just the variables separated by
--- _commas_ and/or spaces and/or nothing
+-- _variables_ are just the variables separated by ommas and/or
+-- spaces and/or nothing
 --   X, Y
 --   X Y
 --   XY

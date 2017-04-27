@@ -1,2 +1,8 @@
+-- | Test everything
+module Main where
+
+import qualified DrawTest as DrawTest
+
+
 main :: IO ()
-main = putStrLn "Test suite not yet implemented"
+main = do DrawTest.main
