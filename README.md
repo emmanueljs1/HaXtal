@@ -8,36 +8,54 @@ Emmanuel Suarez - emsu
 
 Kyle Rosenbluth - kyro
 
-<b>How To Run: </b>
+<h2>How To Run: </h2>
+
 stack build
 stack exec haxtal-exe
 
 stack test
 
-<b>Overview: </b>
+<h2>Overview: </h2>
 
 <i>Main.hs </i>
 
+Create pictures from example LSystems, and present the user with a menu to display example fractals or choose parameters for a random fractal.
 
-Things to do for haxtal
+<i>LSystem.hs </i>
 
-- [x] Arbitrary (Emma)
-- [ ] Animate the draw (Maybe) (Kyle)
-- [ ] Zoom (for certain ones) (Just David)
-- [ ] Tests and commenting (Emma but rly all of us)
-- [ ] Refactor state push and pop (David)
-- [ ] Increase angle, increase line size (David or Kyle)
-- [ ] Styling (Kyle)
-- [ ] Orient all fractals to be visible (Kyle and David)
-- [x] LSYstem input to instant generation (Emma)
-- [ ] Random fractal button (Kyle and Emma)
+Definition of the LSystem data type. Includes show and arbitrary instance, and helper functions for defining rules to be used in user-generated LSystems. Also includes a definition of LSysComps, a string representation of an LSystem, along with its monoid instance and a function for converting LSysComps to LSystems.
+
+<i>Draw.hs </i>
+
+Module that allows for conversion from an LSystem definition to a format that can be displayed. This format is a list of lines, where each line is a list of points.
+
+<i>Examples.hs </i>
+
+Contains definitions of the example LSystems used in Main.hs.
+
+<i>Spec.hs </i>
+
+Top level test suite file.
+
+<i>LSystemTest.hs </i>
+
+Contains tests for LSystem.hs.
+
+<i>DrawTest.hs </i>
+
+Contains tests for Draw.hs.
 
 
+
+
+<h3>Cool LSystems: </h3>
+
+<i>+1</i>
 L : SYS
 S : F|+[F->Y[S]]
 Y : [--F-F+FY]+
 
-<b>VERY COOL FRACTAL, RANDOMLY GENERATED</b>
+<i>VERY COOL FRACTAL, RANDOMLY GENERATED</i>
 Start: Y
 Variables: F,X,Y
 Angle: 91.0
@@ -46,7 +64,7 @@ F: YX
 X: +[[-F
 Y: F-+-+FYX]
 
-CHRISTMAS WREATH, RANDMOLY GENERATED
+<i>CHRISTMAS WREATH, RANDMOLY GENERATED</i>
 Start: XX+
 Variables: F,X,Y
 Angle: 283.0
