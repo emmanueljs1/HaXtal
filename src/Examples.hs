@@ -68,6 +68,10 @@ kochLake = LSystem "F+F+F+F" (r1 <> r2) (makeDefaultDrawRules (pi / 2)) where
   r1 = makeRule 'F' "F+f-FF+F+FF+Ff+FF-f+FF-F-FF-Ff-FFF"
   r2 = makeRule 'f' "ffffff"
 
+kochCurve :: LSystem
+kochCurve = LSystem "F-F-F-F" (r1) (makeDefaultDrawRules (pi / 2.0)) where
+  r1 = makeRule 'F' "FF-F--F-F"
+
 -- Sunflower Curve -- Randomly generated using arbitrary!
 sunflower :: LSystem
 sunflower = LSystem "YX+X" sunflowerRules sunflowerDrawRules where
