@@ -106,7 +106,7 @@ drawPaths ctx paths = do
     dBounds = getDrawBounds $ concat paths
     drawingScale = 500.0 / ((maxX dBounds) - (minX dBounds))
     drawPath p@(p1:_) = do
-      let tr (Point p) = Point $ mapTuple (* drawingScale) p
+      let tr p = mulSV drawingScale p
       uncurry (CVS.moveTo ctx) $ getP . tr $ p1
       traverse_ (uncurry (CVS.lineTo ctx) . getP . tr) p
 
