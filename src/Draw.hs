@@ -27,7 +27,7 @@ makeBoundingBox p = BoundingBox x y x y
                       y = getY p
 
 instance Monoid BoundingBox where
-  mempty        = BoundingBox maxValue maxValue minValue minValue
+  mempty        = BoundingBox maxValue maxValue (-maxValue) (-maxValue)
   mappend b1 b2 =
     BoundingBox (min (minX b1) (minX b2)) (min (minY b1) (minY b2))
                 (max (maxX b1) (maxX b2)) (max (maxY b1) (maxY b2))
@@ -166,3 +166,16 @@ minValue = x
 -- | Arbitrary instances
 instance Arbitrary Point where
   arbitrary = Point <$> liftM2 (,) arbitrary arbitrary
+
+instance Arbitrary Direction where
+  arbitrary = Direction <$> liftM2 (,) arbitrary arbitrary
+
+instance Arbitrary Symbol where
+  arbitrary = oneof [elements [Forward],
+                     elements [Jump],
+                     Turn <$> arbitrary,
+                     AdjAngle <$> arbitrary,
+                     AdjLen <$> arbitrary,
+                     elements [PushState],
+                     elements [PopState]]
+
