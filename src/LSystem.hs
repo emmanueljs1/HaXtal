@@ -194,7 +194,8 @@ zipMap = foldr combine (const empty) where
 -- resize 0 arbitrary is a regular LSystem that can use all constants
 -- resize 1 arbitrary only uses turns
 -- resuze 2 arbitrary only uses turns and pushes/pops
--- resize 3 arbitrary only uses turns and increase/decrease angles
+-- resize 3 arbitrary only uses turns and increase/decrease line length
+-- resize 4 arbitrary only uses turns and increase/decrease angle
 -- there is also a 5% that the LSystem will include jumping in its rules
 instance Arbitrary LSystem where
   arbitrary = sized chooseArbitraryLSystem where
@@ -212,11 +213,17 @@ instance Arbitrary LSystem where
         (3, elements ['+', '-', 'F', 'X', 'Y']),
         (1, elements ['(', ')'])
       ]
+    drawableFrequencies 4 =
+      [
+        (3, elements ['+', '-', 'F', 'X', 'Y']),
+        (1, elements ['<', '>'])
+      ]
     drawableFrequencies _ =
       [
-        (6, elements ['+', '-', 'F', 'X', 'Y']),
-        (3, elements ['[', ']']),
-        (1, elements ['(', ')'])
+        (8, elements ['+', '-', 'F', 'X', 'Y']),
+        (4, elements ['[', ']']),
+        (2, elements ['(', ')']),
+        (1, elements ['<', '>'])
       ]
     chooseArbitraryLSystem i =
       liftM3 LSystem arbStart arbRules arbDrawRules where
@@ -245,7 +252,10 @@ instance Arbitrary LSystem where
         arbDrawRules = do
           f <- choose (0, 2 * pi)
           len <- choose (0.1, 0.5)
-          return (additionalVariableDrawRules f <> makeAdjLenRule len)
+          ang <- choose (0, 2 * pi)
+          return $ additionalVariableDrawRules f <>
+                   makeAdjLenRule len            <>
+                   makeAdjAngleRule ang
 
 -- | holds the string representation of an LSystem
 data LSysComps = LSysComps {lscStart :: String, lscRules :: String,

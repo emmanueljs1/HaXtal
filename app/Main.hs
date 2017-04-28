@@ -42,21 +42,22 @@ main = do
    putStrLn "0: can use all constants"
    putStrLn "1: only turns"
    putStrLn "2: turns and pushes/pops"
-   putStrLn "3: turns and angle increases/decreases"
-   putStrLn "4: Sierpinski"
-   putStrLn "5: Dragon"
-   putStrLn "6: Dragon with angle and line increases"
-   putStrLn "7: Hilbert"
-   putStrLn "8: Gosper"
-   putStrLn "9: Sierpinski Arrowhead"
-   putStrLn "10: Plant"
-   putStrLn "11: Koch Lake"
+   putStrLn "3: turns and line increases/decreases"
+   putStrLn "4: turns and angle increases/decreases"
+   putStrLn "5: Sierpinski"
+   putStrLn "6: Dragon"
+   putStrLn "7: Dragon with angle and line increases"
+   putStrLn "8: Hilbert"
+   putStrLn "9: Gosper"
+   putStrLn "10: Sierpinski Arrowhead"
+   putStrLn "11: Plant"
+   putStrLn "12: Koch Lake"
    s <- getLine
    let op = fromMaybe 0 (readMaybe s)
    lsys <- generate (resize op arbitrary)
    let pic
-         | op < 4 = drawPicture 6 lsys
-         | op < 12 = samplePictures !! (op - 4)
+         | op < 5 = drawPicture 6 lsys
+         | op < 13 = samplePictures !! (op - 5)
          | otherwise = drawPicture 3 kochLake
-   when (op < 4) $ putStrLn "Random LSystem:" >> print lsys
+   when (op < 5) $ putStrLn "Random LSystem:" >> print lsys
    display window background pic
